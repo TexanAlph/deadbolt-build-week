@@ -221,3 +221,90 @@ Official references:
   present as the report lead candidate, and injection preserved as the clean
   class.
 - M3 is live. Stop before M4 patch generation.
+
+### 18:37 CDT — M4 focused patch engine complete
+
+- Added a generic exact-edit patch engine that clones the owner-supplied
+  repository snapshot before applying any change.
+- Added eight focused InvoicePilot patch plans. Every plan emits a unified,
+  reviewable per-finding diff and applies atomically; a stale expected substring
+  stops that finding instead of silently changing different source.
+- The deterministic fixes cover the client/server secret boundary, owner-bound
+  RLS, tenant-scoped invoice lookup, login throttling, explicit CORS, safe error
+  responses, cookie expiration, and browser security headers.
+- The original vulnerable InvoicePilot source remains unchanged. This preserves
+  the before deployment and makes the sandbox boundary truthful in the report.
+- Extended the live OpenAI provider with strict Sol patch-plan Structured
+  Outputs and the same exact-edit sandbox engine. This code path is wired but
+  remains credential-unvalidated, consistent with the existing Sol disclosure.
+
+### 18:37 CDT — M5 red → green re-test loop complete
+
+- Added a finding-specific security invariant for all eight InvoicePilot
+  findings and attached the result plus human-readable evidence to each final
+  finding.
+- Promoted the report contract to schema `1.0.0` with `patchStatus`,
+  `retestStatus`, `retestEvidence`, and aggregate remediation counts.
+- The fixture proves 8 patches generated, 8 applied to the isolated clone, 8
+  re-tests passed, 0 failed, and the original source unchanged.
+- Extended the live provider with a second max-reasoning Sol Structured Output
+  pass over the patched clone. It must explicitly pass or fail each applied
+  finding and state the remaining proof gap.
+- Updated the product report from a future-state promise to a reviewable
+  red → green experience: before/after stakes, exact diff, re-test evidence,
+  and a final `PATCHED + VERIFIED` verdict.
+
+### 18:37 CDT — M6 one-click demo complete
+
+- Added `/demo`, a server-rendered, pre-run InvoicePilot report that requires no
+  signup, GitHub connection, API credential, CodeQL, or CI.
+- Updated the homepage primary action to open this completed report directly.
+- Kept `/analyze` as the interactive owned-source intake and labeled the
+  deterministic versus live-model boundary explicitly.
+
+### 18:37 CDT — M7 owned-staging verification complete
+
+- Added an ownership file to InvoicePilot and a defensive live-verification API.
+- The production policy permits only exact configured owned hostnames, requires
+  HTTPS and a matching ownership token, rejects credentials, custom ports, and
+  redirects, limits every response body, applies a six-second timeout, and
+  rate-limits callers.
+- The verifier performs only four documented synthetic checks: missing browser
+  headers, wildcard CORS, cross-tenant invoice 2044, and verbose report errors.
+  It does not discover endpoints, send payloads, or probe a third party.
+- Added a client panel that requires explicit authorization before any network
+  request and clearly distinguishes the vulnerable live “before” app from the
+  sandboxed green source result.
+
+### 18:37 CDT — M8 `$deadbolt` Skill complete
+
+- Used the built-in skill scaffolder, then placed the final artifact at
+  `.agents/skills/deadbolt`, Codex’s documented repo-scoped discovery path.
+- The 94-line workflow encodes the self-audit boundary, threat model, four
+  independent hunt lenses, evidence standard, focused patch discipline,
+  regression checks, and red → green completion rule.
+- Added `agents/openai.yaml` UI metadata and a progressive-disclosure report
+  contract reference.
+- The provided validator initially lacked PyYAML in both system and bundled
+  Python runtimes. Installed PyYAML only into a temporary validator directory
+  and re-ran the official script: `Skill is valid!`
+
+### 18:37 CDT — M9 judge handoff and local validation
+
+- Rewrote the README around a 30-second judge path, live links, the competitive
+  wall, the logic-flaw centerpiece, the complete architecture, Codex/GPT-5.6
+  techniques, Skill invocation, local setup, validation, and safety.
+- Preserved the honest model disclosure: the Sol/Terra live path is built, but
+  no credential was available, so only the deterministic end-to-end provider
+  is claimed as executed.
+- `npm run lint` — pass.
+- `npm run typecheck` — pass.
+- `npm run verify:core` — pass: 4 hunts, 8 findings, 8 exact patches, 8 green
+  re-tests, original unchanged.
+- `npm run verify:report` — pass: product report includes human stakes,
+  red → green comparison, patch, re-test proof, and the live gate.
+- `npm run verify:live` — pass: exact-host policy, ownership token, four bounded
+  checks, and strict result schema.
+- `samples/invoice-pilot npm run check` — pass: lint, types, all eight planted
+  seeds, production build, and browser-bundle exposure.
+- Final root production build, deployments, and production checks follow below.
