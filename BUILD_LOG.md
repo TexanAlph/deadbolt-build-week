@@ -7,7 +7,7 @@ This is the dated evidence trail for the OpenAI Build Week build. Log material m
 | Technique | Status | Evidence |
 | --- | --- | --- |
 | Persistent `/goal` | Active | M0 objective includes outcome, constraints, validation, commit, and live deployment. |
-| Review → repair → validate | Active | M0 uses lint, typecheck, production build, runtime check, and a repair pass before completion. |
+| Review → repair → validate | Active | M0 and M1 use lint, typecheck, production builds, runtime checks, and repair passes before completion. |
 | Slim `AGENTS.md` | Active | Repository intent, guardrails, milestone discipline, and validation commands are kept in one concise file. |
 | Parallel subagent hunts | Planned for M2 | Four independent passes: secrets; auth/IDOR; injection; config/CORS/headers. Do not claim as used before M2. |
 | Programmatic Tool Calling | Researched; planned for M2 | Reserved for a bounded evidence-reduction stage with an exact schema, retry limit, and stop condition. |
@@ -68,3 +68,43 @@ Official references:
 - Stable URL: https://deadbolt-build-week.vercel.app
 - Production verification: HTTP 200 with the expected Deadbolt page title.
 - M0 is complete. Stop here before starting InvoicePilot (M1).
+
+### 17:10 CDT — M1 safety and seed contract
+
+- Scoped InvoicePilot as a separate synthetic SaaS with no database, payment
+  processor, email provider, real secrets, real people, or persistent user data.
+- Defined eight planted findings in `VULNERABILITY_MANIFEST.json`: a fake key
+  compiled into the client, missing row-level security, invoice IDOR, no login
+  throttling, wildcard CORS, verbose errors, ineffective logout, and missing
+  security headers.
+- Added a seed verifier so the vulnerable ground truth remains reproducible
+  without shipping exploit tooling.
+
+### 17:18 CDT — InvoicePilot built and verified locally
+
+- Built a responsive multi-route invoice dashboard, demo login, invoice detail
+  view, synthetic APIs, six cross-tenant invoice records, and a dedicated social
+  preview asset.
+- `npm audit` — pass, 0 vulnerabilities in the sample app's framework
+  dependencies. The only intentional weaknesses are documented application
+  behaviors.
+- `npm run lint` — pass.
+- `npm run typecheck` — pass.
+- `npm run verify:seeds` — pass; all 8 planted findings matched the manifest.
+- `npm run build` — pass; dashboard, login, invoice, and API routes compiled.
+- `npm run verify:bundle` — pass; the fake secret-shaped key was found in a
+  generated browser chunk.
+- `npm run verify:runtime` — pass; 14 assertions covered dashboard rendering,
+  cross-tenant invoice access, wildcard CORS, absent headers, five unthrottled
+  login attempts, persistent logout state, and verbose error disclosure.
+
+### 17:26 CDT — M1 live
+
+- Production deployment status: **Ready**.
+- Stable URL: https://invoicepilot-deadbolt-demo.vercel.app
+- Deployment ID: `dpl_3Kq5BS9KKCokuV5uJ8yrNShS2Q6N`.
+- Re-ran `BASE_URL=https://invoicepilot-deadbolt-demo.vercel.app npm run
+  verify:runtime` against production — all 14 assertions passed.
+- Verified the production metadata resolves the 1200×630 social card at
+  `https://invoicepilot-deadbolt-demo.vercel.app/og.png`.
+- M1 is complete. Stop here before starting the GPT-5.6 Sol hunt pipeline (M2).

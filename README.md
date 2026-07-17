@@ -6,13 +6,24 @@ Deadbolt is being built for solo builders who can ship an application faster tha
 
 ## Current milestone
 
-**M0 — Foundation:** the Next.js/Tailwind product shell, project guidance, evidence log, validation loop, and live Vercel deployment.
+**M1 — Seeded demo app:** InvoicePilot is a realistic, deliberately vulnerable
+SaaS with eight synthetic security flaws and its own live Vercel deployment.
 
-The analysis engine, InvoicePilot demo, reports, patches, and re-test loop are deliberately not represented as working yet. Each milestone must be shown working before the next one starts.
+The Deadbolt analysis engine, reports, patches, and re-test loop are deliberately
+not represented as working yet. Each milestone must be shown working before the
+next one starts.
 
 ## Live foundation
 
 https://deadbolt-build-week.vercel.app
+
+## Live seeded demo
+
+https://invoicepilot-deadbolt-demo.vercel.app
+
+InvoicePilot contains only fictional people, companies, invoices, credentials,
+and payments. Its eight planted vulnerabilities are documented and
+programmatically verified in `samples/invoice-pilot`.
 
 ## Safety boundary
 
