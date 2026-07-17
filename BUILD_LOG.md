@@ -206,3 +206,18 @@ Official references:
 - M3 is complete against the deterministic InvoicePilot pipeline. No patch diff
   or re-test result is fabricated, and the live Sol validation gate remains
   deferred as requested.
+
+### 18:22 CDT — M3 live
+
+- Production deployment status: **Ready**.
+- Stable URL: https://deadbolt-build-week.vercel.app
+- Deployment ID: `dpl_BkzCmbZp5dfvYcg7Siw57YQvfAcW`.
+- Production `/` — HTTP 200 with the M3 status and `Run the report` CTA.
+- Production `/analyze` — HTTP 200 with the security-report title, M3 status,
+  and human-stakes intake copy.
+- Production `/og.png` — HTTP 200, `image/png`, updated 858,825-byte campaign
+  asset with the scan beam focused on the bug.
+- Production InvoicePilot analysis — HTTP 200, 8 findings, 4 passes, IP-003
+  present as the report lead candidate, and injection preserved as the clean
+  class.
+- M3 is live. Stop before M4 patch generation.
