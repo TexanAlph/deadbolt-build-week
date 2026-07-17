@@ -6,20 +6,21 @@ Deadbolt is being built for solo builders who can ship an application faster tha
 
 ## Current milestone
 
-**M2 — Core analysis, staged:** Deadbolt now accepts a bounded repository
-snapshot, builds a threat model, reduces evidence, runs four specialized hunt
-contracts, and returns strict structured findings.
+**M3 — Plain-English report:** Deadbolt now turns the structured hunt into a
+product-grade security report: an immediate ship/no-ship verdict, human stakes,
+severity in everyday language, linked source evidence, a right-now versus safer
+target comparison, the threat model, and honest clean-pass coverage.
 
-InvoicePilot exercises the full contract through a deterministic fixture with
-eight verified findings and one intentional clean injection pass. The live
-GPT-5.6 Sol provider, Structured Outputs, Programmatic Tool Calling, prompt-cache
-measurement, and retry boundary are implemented but still require an
-`OPENAI_API_KEY` for live validation. M2 remains staged—not complete—until that
-gate is passed.
+InvoicePilot exercises the report through a deterministic fixture with eight
+verified findings and one intentional clean injection pass. The report leads
+with the cross-tenant invoice flaw because it best demonstrates reasoning beyond
+pattern matching.
 
-Patches and re-tests remain deliberately gated for M4–M5.
+The live GPT-5.6 Sol gate from M2 remains explicitly deferred until an
+`OPENAI_API_KEY` is available. Patches and re-tests remain deliberately gated
+for M4–M5; the safer target shown in M3 is guidance, not a claimed fix.
 
-## Live foundation
+## Live app
 
 https://deadbolt-build-week.vercel.app
 

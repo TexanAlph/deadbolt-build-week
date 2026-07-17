@@ -3,9 +3,9 @@ import Link from "next/link";
 import { AnalysisConsole } from "@/components/analysis-console";
 
 export const metadata: Metadata = {
-  title: "Core analysis",
+  title: "Security report",
   description:
-    "Run Deadbolt's bounded repository intake and structured blue-team analysis core.",
+    "Run Deadbolt and review a plain-English security report with human stakes and linked source evidence.",
 };
 
 export default function AnalyzePage() {
@@ -19,24 +19,24 @@ export default function AnalyzePage() {
           <span className="brand-name">DEADBOLT</span>
         </Link>
         <div className="analysis-header-copy">
-          <p>CORE ENGINE · STAGED</p>
+          <p>M3 · REPORT READY</p>
           <span>SELF-AUDIT ONLY</span>
         </div>
       </header>
 
       <section className="analysis-intro">
         <div>
-          <p className="eyebrow">REPOSITORY → STRUCTURED FINDINGS</p>
+          <p className="eyebrow">REPOSITORY → HUMAN STAKES</p>
           <h1>
-            Give the hunt
-            <span>something real to reason about.</span>
+            Find the bug.
+            <span>Understand the damage.</span>
           </h1>
         </div>
         <p>
           Deadbolt maps the application first, reduces source evidence in a
-          bounded stage, then runs four independent vulnerability hunts. This
-          milestone stops at structured findings—patches and re-tests come
-          next.
+          bounded stage, then turns four independent vulnerability hunts into a
+          report a solo builder can actually act on. Patches and re-tests still
+          come next.
         </p>
       </section>
 

@@ -9,7 +9,8 @@
     "lint": "eslint",
     "typecheck": "tsc --noEmit",
     "verify:core": "tsx scripts/verify-analysis.ts",
-    "check": "npm run lint && npm run typecheck && npm run verify:core && npm run build"
+    "verify:report": "tsx scripts/verify-report.tsx",
+    "check": "npm run lint && npm run typecheck && npm run verify:core && npm run verify:report && npm run build"
   },
   "dependencies": {
     "next": "16.2.10",

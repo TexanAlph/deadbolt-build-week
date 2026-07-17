@@ -178,3 +178,31 @@ Official references:
   class.
 - This deployment proves the staged deterministic core only. It does not satisfy
   the remaining live GPT-5.6 Sol validation gate.
+
+### 18:18 CDT — M3 plain-English report implemented
+
+- The user asked for the campaign image to make the bug discovery more
+  explicit. Used the built-in image-generation edit path to preserve the
+  established composition while redirecting the scan beam onto one cracked code
+  module with a targeted bug glyph.
+- Validated the replacement at 1200×630, kept the exact Deadbolt wordmark and
+  tagline, changed the milestone label to `M3 · REPORT READY`, and retained it
+  as `public/og.png`.
+- Replaced the technical contract preview after a run with a judge-facing report
+  experience:
+  - immediate `NOT READY TO SHIP` verdict and plain-English severity tally;
+  - the IDOR/BOLA cross-tenant invoice flaw as the opening story;
+  - filterable, selectable findings with everyday-language urgency;
+  - linked file-and-line evidence with the reason each location matters;
+  - an honest `RIGHT NOW` versus `SAFER TARGET` comparison;
+  - threat-model entry points, sensitive assets, and traced data flows;
+  - four independent hunt summaries, including injection as a clean pass;
+  - visible M4 patch and M5 re-test gates.
+- Added pure report-presentation helpers and deterministic tests for severity
+  totals, report verdict, lead-finding selection, evidence, safer-target copy,
+  and milestone boundaries.
+- `npm run check` — pass: lint, strict typecheck, core verifier, report renderer
+  verifier, and warning-free production build.
+- M3 is complete against the deterministic InvoicePilot pipeline. No patch diff
+  or re-test result is fabricated, and the live Sol validation gate remains
+  deferred as requested.

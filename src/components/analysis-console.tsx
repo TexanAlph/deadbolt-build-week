@@ -1,6 +1,8 @@
 "use client";
 
-import { ChangeEvent, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
+import type { ChangeEvent } from "react";
+import { ReportExperience } from "@/components/report-experience";
 import type {
   AnalysisReport,
   RepositoryFile,
@@ -29,14 +31,6 @@ const allowedExtensions = [
   ".yaml",
   ".yml",
 ];
-
-const severityLabels: Record<string, string> = {
-  critical: "Critical",
-  high: "High",
-  medium: "Medium",
-  low: "Low",
-  informational: "Info",
-};
 
 function isAcceptedFile(file: File) {
   const name = file.name.toLowerCase();
@@ -162,6 +156,20 @@ export function AnalysisConsole() {
     }
   }
 
+  if (report) {
+    return (
+      <ReportExperience
+        report={report}
+        onStartOver={() => {
+          setReport(null);
+          setState("idle");
+          setError("");
+          setOwnershipConfirmed(false);
+        }}
+      />
+    );
+  }
+
   return (
     <div className="analysis-console">
       <section className="intake-panel">
@@ -274,124 +282,42 @@ export function AnalysisConsole() {
       <section className="run-panel" aria-live="polite">
         <div className="run-heading">
           <div>
-            <p className="eyebrow">M2 · CORE CONTRACT</p>
-            <h2>
-              {report ? report.repository.name : "No analysis run yet"}
-            </h2>
+            <p className="eyebrow">M3 · REPORT PIPELINE</p>
+            <h2>No analysis run yet</h2>
           </div>
-          <span
-            className={`engine-pill ${
-              report?.engine.liveModel ? "live" : "fixture"
-            }`}
-          >
-            {report?.engine.liveModel
-              ? "LIVE · GPT-5.6 SOL"
-              : "FIXTURE · SOL DEFERRED"}
-          </span>
+          <span className="engine-pill fixture">AWAITING RUN</span>
         </div>
 
         <div className="run-stages">
-          <div className={report ? "done" : ""}>
+          <div>
             <span>01</span>
             <p>Intake</p>
-            <strong>{report ? `${report.repository.filesAnalyzed} files` : "—"}</strong>
+            <strong>—</strong>
           </div>
-          <div className={report ? "done" : ""}>
+          <div>
             <span>02</span>
             <p>Threat model</p>
-            <strong>{report ? `${report.threatModel.entryPoints.length} entries` : "—"}</strong>
+            <strong>—</strong>
           </div>
-          <div className={report ? "done" : ""}>
+          <div>
             <span>03</span>
             <p>Evidence reducer</p>
-            <strong>{report ? report.engine.ptcStatus.replaceAll("_", " ") : "—"}</strong>
+            <strong>—</strong>
           </div>
-          <div className={report ? "done" : ""}>
+          <div>
             <span>04</span>
             <p>Parallel hunts</p>
-            <strong>{report ? `${report.passes.length}/4 complete` : "—"}</strong>
+            <strong>—</strong>
           </div>
         </div>
 
-        {report ? (
-          <>
-            <div className="contract-summary">
-              <div>
-                <span>{report.findings.length}</span>
-                <p>structured findings</p>
-              </div>
-              <div>
-                <span>{report.coverage.cleanClasses.length}</span>
-                <p>clean passes</p>
-              </div>
-              <div>
-                <span>{report.usage.cachedTokens}</span>
-                <p>cached tokens</p>
-              </div>
-              <div>
-                <span>{report.elapsedMs}ms</span>
-                <p>fixture runtime</p>
-              </div>
-            </div>
-
-            <div className="agent-grid">
-              {report.passes.map((pass) => (
-                <article key={pass.huntClass}>
-                  <div>
-                    <span className="agent-dot" />
-                    <p>{pass.huntClass.replace("_", " + ")}</p>
-                  </div>
-                  <strong>
-                    {pass.findings.length > 0
-                      ? `${pass.findings.length} confirmed`
-                      : "clean pass"}
-                  </strong>
-                </article>
-              ))}
-            </div>
-
-            <div className="finding-contract">
-              <div className="contract-label">
-                <p>STRUCTURED JSON FINDINGS</p>
-                <span>PATCH + RE-TEST RESERVED FOR M4–M5</span>
-              </div>
-              {report.findings.map((finding) => (
-                <article key={finding.id}>
-                  <div className="finding-id">
-                    <span>{finding.id}</span>
-                    <span className={`severity ${finding.severity}`}>
-                      {severityLabels[finding.severity]}
-                    </span>
-                  </div>
-                  <div>
-                    <h3>{finding.title}</h3>
-                    <p>{finding.plainEnglish}</p>
-                    <code>
-                      {finding.file}:{finding.line}
-                    </code>
-                  </div>
-                  <div className="confidence">
-                    <span>{Math.round(finding.confidence * 100)}%</span>
-                    <p>confidence</p>
-                  </div>
-                </article>
-              ))}
-            </div>
-
-            <details className="raw-contract">
-              <summary>Inspect raw structured contract</summary>
-              <pre>{JSON.stringify(report, null, 2)}</pre>
-            </details>
-          </>
-        ) : (
-          <div className="empty-run">
-            <span>DB—CORE</span>
-            <p>
-              Confirm ownership and run InvoicePilot to exercise the complete
-              M2 data contract.
-            </p>
-          </div>
-        )}
+        <div className="empty-run">
+          <span>DB—M3</span>
+          <p>
+            Confirm ownership and run InvoicePilot to open the complete
+            plain-English security report.
+          </p>
+        </div>
       </section>
     </div>
   );

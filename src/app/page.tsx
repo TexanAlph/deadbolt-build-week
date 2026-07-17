@@ -43,7 +43,7 @@ export default function Home() {
 
         <div className="header-status" aria-label="Build status">
           <span className="status-dot" aria-hidden="true" />
-          <span>M2 · CORE STAGED</span>
+          <span>M3 · REPORT READY</span>
         </div>
       </header>
 
@@ -63,7 +63,7 @@ export default function Home() {
 
             <div className="hero-actions">
               <a className="primary-action" href="/analyze">
-                Run the core
+                Run the report
                 <span aria-hidden="true">↘</span>
               </a>
               <a
@@ -92,7 +92,7 @@ export default function Home() {
                 <p className="micro-label">AUDIT RUN</p>
                 <p className="run-id">DB—CORE</p>
               </div>
-              <span className="queued-badge">FIXTURE READY · SOL DEFERRED</span>
+              <span className="queued-badge">REPORT READY · SOL DEFERRED</span>
             </div>
 
             <div className="scan-field" aria-hidden="true">
@@ -148,9 +148,9 @@ export default function Home() {
               <h2>A finding is not finished until the fix turns green.</h2>
             </div>
             <p className="section-note">
-              M2 wires bounded repository intake, a threat model, evidence
-              reduction, four parallel hunt contracts, and strict structured
-              findings. Patch and re-test stay gated.
+              M3 turns the structured hunt into a plain-English product
+              experience: human stakes first, linked evidence second, and a
+              clear safer target. Patch and re-test stay gated.
             </p>
           </div>
 
@@ -186,7 +186,7 @@ export default function Home() {
 
       <footer>
         <p>DEADBOLT · OPENAI BUILD WEEK 2026</p>
-        <p>CORE ENGINE STAGED · JUL 17</p>
+        <p>M3 REPORT READY · JUL 17</p>
       </footer>
     </div>
   );

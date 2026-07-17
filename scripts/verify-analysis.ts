@@ -6,6 +6,12 @@ import {
   prepareRepository,
 } from "../src/lib/analysis/repository";
 import { AnalysisReportSchema } from "../src/lib/analysis/schemas";
+import {
+  chooseLeadFinding,
+  reportVerdict,
+  severityCounts,
+  severityGuidance,
+} from "../src/lib/report/presentation";
 
 async function main() {
   process.env.DEADBOLT_ANALYSIS_MODE = "fixture";
@@ -78,8 +84,26 @@ async function main() {
     "The IDOR finding must cite the cross-file lookup path.",
   );
 
+  const counts = severityCounts(report.findings);
+  assert.deepEqual(
+    {
+      critical: counts.critical,
+      high: counts.high,
+      medium: counts.medium,
+    },
+    { critical: 2, high: 3, medium: 3 },
+    "The report severity tally must match the seeded ground truth.",
+  );
+  assert.equal(
+    chooseLeadFinding(report.findings)?.id,
+    "IP-003",
+    "The report should lead with the cross-tenant logic flaw.",
+  );
+  assert.equal(reportVerdict(report).label, "NOT READY TO SHIP");
+  assert.match(severityGuidance.critical, /before/i);
+
   console.log(
-    "✓ M2 fixture verified: bounded intake, 4 hunt passes, 8 findings, 1 clean negative control",
+    "✓ M2/M3 fixture verified: bounded intake, 4 hunts, 8 findings, plain-English report logic",
   );
 }
 

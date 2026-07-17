@@ -38,13 +38,13 @@ export const metadata: Metadata = {
     siteName: "Deadbolt",
     title: "Deadbolt — Reason across the code",
     description:
-      "A bounded blue-team analysis core for finding security flaws across apps you own.",
+      "A plain-English security report that connects source evidence to the human stakes.",
     images: [
       {
         url: "/og.png",
         width: 1200,
         height: 630,
-        alt: "Deadbolt scans a repository evidence graph for a security fault.",
+        alt: "A Deadbolt scan beam isolates a software bug inside a repository evidence graph.",
       },
     ],
   },
@@ -52,7 +52,7 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: "Deadbolt — Reason across the code",
     description:
-      "A bounded blue-team analysis core for finding security flaws across apps you own.",
+      "A plain-English security report that connects source evidence to the human stakes.",
     images: ["/og.png"],
   },
 };
