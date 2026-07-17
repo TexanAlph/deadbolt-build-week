@@ -162,3 +162,19 @@ Official references:
     `live_provider_unavailable`.
 - M2 is staged, not complete. The remaining gate is one live GPT-5.6 Sol run with
   schema validation and measured PTC/cache usage. M3 has not started.
+
+### 18:09 CDT — Staged M2 production deployment
+
+- Production deployment status: **Ready**.
+- Stable URL: https://deadbolt-build-week.vercel.app
+- Deployment ID: `dpl_765zzXFS2K6Vk7CKnH6KBZu6kcu1`.
+- Production `/` — HTTP 200 with Deadbolt content.
+- Production `/analyze` — HTTP 200 with the core-engine intake.
+- Production `/og.png` — HTTP 200, `image/png`, 1200×630 source asset.
+- Production capability endpoint — HTTP 200, fixture mode, live model not
+  configured.
+- Production InvoicePilot analysis — HTTP 200, fixture provider, 8 findings
+  (`IP-001` through `IP-008`), 4 passes, and injection recorded as the clean
+  class.
+- This deployment proves the staged deterministic core only. It does not satisfy
+  the remaining live GPT-5.6 Sol validation gate.
