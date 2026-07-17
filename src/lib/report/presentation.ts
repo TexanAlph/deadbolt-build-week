@@ -40,6 +40,25 @@ export function chooseLeadFinding(findings: Finding[]) {
 
 export function reportVerdict(report: AnalysisReport) {
   const counts = severityCounts(report.findings);
+  const passed = report.findings.filter(
+    (finding) => finding.retestStatus === "passed",
+  ).length;
+  const failed = report.findings.filter(
+    (finding) => finding.retestStatus === "failed",
+  ).length;
+
+  if (
+    report.findings.length > 0 &&
+    passed === report.findings.length &&
+    failed === 0
+  ) {
+    return {
+      label: "PATCHED + VERIFIED",
+      headline: `${report.findings.length} risks found. ${passed} focused fixes re-tested green.`,
+      summary:
+        "Every patch was applied to an isolated repository clone, then checked against the original security invariant.",
+    };
+  }
 
   if (counts.critical > 0) {
     return {

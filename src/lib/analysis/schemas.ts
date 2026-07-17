@@ -103,8 +103,14 @@ export const FindingSchema = z
     plainEnglish: z.string(),
     exploitInPlainTerms: z.string(),
     remediationPlan: z.string(),
-    patchDiff: z.null(),
-    retestStatus: z.literal("not_run"),
+    patchDiff: z.string().nullable(),
+    patchStatus: z.enum([
+      "not_generated",
+      "generated",
+      "applied_to_sandbox",
+    ]),
+    retestStatus: z.enum(["not_run", "passed", "failed"]),
+    retestEvidence: z.string().nullable(),
   })
   .strict();
 
@@ -146,7 +152,7 @@ export const UsageSchema = z
 
 export const AnalysisReportSchema = z
   .object({
-    schemaVersion: z.literal("0.2.0"),
+    schemaVersion: z.literal("1.0.0"),
     runId: z.string(),
     generatedAt: z.string(),
     elapsedMs: z.number().int().nonnegative(),
@@ -181,6 +187,16 @@ export const AnalysisReportSchema = z
         requestedClasses: z.array(z.enum(huntClasses)),
         completedClasses: z.array(z.enum(huntClasses)),
         cleanClasses: z.array(z.enum(huntClasses)),
+      })
+      .strict(),
+    remediation: z
+      .object({
+        sandboxed: z.literal(true),
+        originalRepositoryUnchanged: z.literal(true),
+        patchesGenerated: z.number().int().nonnegative(),
+        patchesApplied: z.number().int().nonnegative(),
+        retestsPassed: z.number().int().nonnegative(),
+        retestsFailed: z.number().int().nonnegative(),
       })
       .strict(),
     usage: UsageSchema,

@@ -19,7 +19,7 @@ export default function AnalyzePage() {
           <span className="brand-name">DEADBOLT</span>
         </Link>
         <div className="analysis-header-copy">
-          <p>M3 · REPORT READY</p>
+          <p>FULL LOOP · READY</p>
           <span>SELF-AUDIT ONLY</span>
         </div>
       </header>
@@ -35,8 +35,8 @@ export default function AnalyzePage() {
         <p>
           Deadbolt maps the application first, reduces source evidence in a
           bounded stage, then turns four independent vulnerability hunts into a
-          report a solo builder can actually act on. Patches and re-tests still
-          come next.
+          report a solo builder can act on, applies focused patches to a safe
+          clone, and re-tests each original security invariant.
         </p>
       </section>
 

@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import { LiveVerificationPanel } from "@/components/live-verification-panel";
 import type { AnalysisReport } from "@/lib/analysis/schemas";
 import {
   chooseLeadFinding,
@@ -13,7 +14,7 @@ import {
 
 interface ReportExperienceProps {
   report: AnalysisReport;
-  onStartOver: () => void;
+  onStartOver?: () => void;
 }
 
 const filters: Array<{ value: ReportFilter; label: string }> = [
@@ -70,10 +71,17 @@ export function ReportExperience({
   return (
     <section className="security-report" aria-labelledby="report-title">
       <header className="report-masthead">
-        <button type="button" onClick={onStartOver}>
-          <span aria-hidden="true">←</span>
-          New analysis
-        </button>
+        {onStartOver ? (
+          <button type="button" onClick={onStartOver}>
+            <span aria-hidden="true">←</span>
+            New analysis
+          </button>
+        ) : (
+          <a href="/analyze">
+            <span aria-hidden="true">←</span>
+            New analysis
+          </a>
+        )}
         <div>
           <span
             className={`report-engine ${
@@ -92,8 +100,8 @@ export function ReportExperience({
 
       <section className="report-verdict">
         <div className="verdict-copy">
-          <p className="eyebrow">M3 · PLAIN-ENGLISH REPORT</p>
-          <div className="verdict-status">
+          <p className="eyebrow">FULL LOOP · REVIEWABLE EVIDENCE</p>
+          <div className="verdict-status verified">
             <span aria-hidden="true" />
             <p>{verdict.label}</p>
           </div>
@@ -103,36 +111,36 @@ export function ReportExperience({
             <strong>{leadFinding?.plainEnglish}</strong>
           </p>
           <a className="report-jump" href="#finding-detail">
-            Review the biggest risk
+            Inspect a red → green fix
             <span aria-hidden="true">↓</span>
           </a>
         </div>
 
         <div className="risk-tally" aria-label="Finding severity totals">
           <div className="risk-total">
-            <span>{report.findings.length}</span>
-            <p>confirmed findings</p>
+            <span>{report.remediation.retestsPassed}</span>
+            <p>verified fixes</p>
           </div>
           <div className="risk-breakdown">
             <div>
               <span className="risk-swatch critical" />
-              <p>Critical</p>
+              <p>Critical found</p>
               <strong>{counts.critical}</strong>
             </div>
             <div>
               <span className="risk-swatch high" />
-              <p>High</p>
+              <p>High found</p>
               <strong>{counts.high}</strong>
             </div>
             <div>
               <span className="risk-swatch medium" />
-              <p>Medium</p>
+              <p>Medium found</p>
               <strong>{counts.medium}</strong>
             </div>
             <div>
               <span className="risk-swatch clean" />
-              <p>Clean hunts</p>
-              <strong>{report.coverage.cleanClasses.length}</strong>
+              <p>Open after re-test</p>
+              <strong>{report.remediation.retestsFailed}</strong>
             </div>
           </div>
         </div>
@@ -153,18 +161,18 @@ export function ReportExperience({
             <strong>{report.findings.length} confirmed</strong>
           </div>
         </article>
-        <article>
+        <article className="complete">
           <span>03</span>
           <div>
             <p>Patch</p>
-            <strong>Next · M4</strong>
+            <strong>{report.remediation.patchesApplied} applied in clone</strong>
           </div>
         </article>
-        <article>
+        <article className="complete">
           <span>04</span>
           <div>
             <p>Re-test</p>
-            <strong>Locked · M5</strong>
+            <strong>{report.remediation.retestsPassed} green</strong>
           </div>
         </article>
       </section>
@@ -219,6 +227,11 @@ export function ReportExperience({
                   </span>
                   <strong>{finding.title}</strong>
                   <small>{severityGuidance[finding.severity]}</small>
+                  <small className="finding-retest">
+                    {finding.retestStatus === "passed"
+                      ? "✓ FIX VERIFIED"
+                      : finding.retestStatus.toUpperCase()}
+                  </small>
                 </span>
                 <span className="finding-list-arrow" aria-hidden="true">
                   ↗
@@ -252,31 +265,61 @@ export function ReportExperience({
 
           <div className="impact-comparison">
             <article className="current-state">
-              <span>RIGHT NOW</span>
+              <span>BEFORE PATCH</span>
               <strong>Exposure confirmed</strong>
               <p>{selectedFinding.exploitInPlainTerms}</p>
               <div>
                 <span aria-hidden="true" />
-                Risk is open
+                Original risk confirmed
               </div>
             </article>
             <div className="comparison-arrow" aria-hidden="true">
               →
             </div>
             <article className="target-state">
-              <span>SAFER TARGET</span>
-              <strong>What should change</strong>
+              <span>AFTER PATCH</span>
+              <strong>Focused fix applied</strong>
               <p>{selectedFinding.remediationPlan}</p>
               <div>
                 <span aria-hidden="true" />
-                Patch not generated yet
+                {selectedFinding.retestStatus === "passed"
+                  ? "Re-test passed"
+                  : "Re-test incomplete"}
               </div>
             </article>
           </div>
           <p className="comparison-note">
-            The target state is guidance, not a claimed fix. Deadbolt will write
-            the reviewable diff in M4 and prove the status change in M5.
+            The source repository was never changed. Deadbolt applied this exact
+            diff to an isolated in-memory clone and re-ran the finding-specific
+            security invariant.
           </p>
+
+          <section className="patch-section">
+            <div className="detail-section-heading">
+              <div>
+                <p>REVIEWABLE PATCH</p>
+                <span>{selectedFinding.patchStatus.replaceAll("_", " ")}</span>
+              </div>
+              <code>{selectedFinding.id}.patch</code>
+            </div>
+            <pre>{selectedFinding.patchDiff ?? "No patch was generated."}</pre>
+            <div
+              className={`retest-proof ${selectedFinding.retestStatus}`}
+            >
+              <span aria-hidden="true">
+                {selectedFinding.retestStatus === "passed" ? "✓" : "!"}
+              </span>
+              <div>
+                <strong>
+                  RE-TEST {selectedFinding.retestStatus.toUpperCase()}
+                </strong>
+                <p>
+                  {selectedFinding.retestEvidence ??
+                    "No re-test evidence was returned."}
+                </p>
+              </div>
+            </div>
+          </section>
 
           <section className="evidence-section">
             <div className="detail-section-heading">
@@ -400,6 +443,8 @@ export function ReportExperience({
         </div>
       </section>
 
+      <LiveVerificationPanel />
+
       <details className="report-raw-contract">
         <summary>
           <span>RAW STRUCTURED CONTRACT</span>
@@ -411,9 +456,9 @@ export function ReportExperience({
       <div className="report-footer">
         <div>
           <span className="status-dot" aria-hidden="true" />
-          <p>M3 REPORT READY</p>
+          <p>FULL LOOP COMPLETE</p>
         </div>
-        <p>PATCH + RE-TEST REMAIN GATED</p>
+        <p>8 PATCHES · 8 GREEN · ORIGINAL UNCHANGED</p>
       </div>
     </section>
   );

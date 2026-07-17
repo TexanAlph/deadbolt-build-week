@@ -8,6 +8,7 @@ import {
   type ThreatModel,
   huntClasses,
 } from "./schemas";
+import { remediateInvoicePilot } from "./patch-engine";
 import type { PreparedRepository } from "./repository";
 
 const checkedFiles: Record<HuntClass, string[]> = {
@@ -51,12 +52,17 @@ function evidence(
 }
 
 function finding(
-  value: Omit<Finding, "patchDiff" | "retestStatus">,
+  value: Omit<
+    Finding,
+    "patchDiff" | "patchStatus" | "retestStatus" | "retestEvidence"
+  >,
 ): Finding {
   return {
     ...value,
     patchDiff: null,
+    patchStatus: "not_generated",
     retestStatus: "not_run",
+    retestEvidence: null,
   };
 }
 
@@ -416,10 +422,23 @@ export function runFixtureAnalysis(
   runId: string,
   elapsedMs: number,
 ): AnalysisReport {
-  const passes = buildPasses();
+  const initialPasses = buildPasses();
+  const remediation = remediateInvoicePilot(
+    repository.snapshot,
+    findings,
+  );
+  const remediatedById = new Map(
+    remediation.findings.map((item) => [item.id, item]),
+  );
+  const passes = initialPasses.map((pass) => ({
+    ...pass,
+    findings: pass.findings.map(
+      (item) => remediatedById.get(item.id) ?? item,
+    ),
+  }));
 
   return AnalysisReportSchema.parse({
-    schemaVersion: "0.2.0",
+    schemaVersion: "1.0.0",
     runId,
     generatedAt: new Date().toISOString(),
     elapsedMs,
@@ -440,12 +459,13 @@ export function runFixtureAnalysis(
     },
     threatModel,
     passes,
-    findings,
+    findings: remediation.findings,
     coverage: {
       requestedClasses: [...huntClasses],
       completedClasses: [...huntClasses],
       cleanClasses: ["injection"],
     },
+    remediation: remediation.summary,
     usage: {
       requestCount: 0,
       inputTokens: 0,

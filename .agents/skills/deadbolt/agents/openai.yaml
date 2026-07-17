@@ -1,0 +1,7 @@
+interface:
+  display_name: "Deadbolt"
+  short_description: "Find, patch, and verify risks in code you own"
+  brand_color: "#B7F34A"
+  default_prompt: "Use $deadbolt to audit this repository, patch confirmed findings safely, and re-test each fix."
+policy:
+  allow_implicit_invocation: true

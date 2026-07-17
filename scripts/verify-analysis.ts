@@ -61,12 +61,30 @@ async function main() {
       "IP-008",
     ],
   );
+  assert.equal(report.schemaVersion, "1.0.0");
+  assert.deepEqual(report.remediation, {
+    sandboxed: true,
+    originalRepositoryUnchanged: true,
+    patchesGenerated: 8,
+    patchesApplied: 8,
+    retestsPassed: 8,
+    retestsFailed: 0,
+  });
   assert(
     report.findings.every(
       (finding) =>
-        finding.patchDiff === null && finding.retestStatus === "not_run",
+        finding.patchDiff?.startsWith("--- a/") &&
+        finding.patchStatus === "applied_to_sandbox" &&
+        finding.retestStatus === "passed" &&
+        Boolean(finding.retestEvidence),
     ),
-    "M2 must not cross the M4/M5 patch and re-test milestone gate.",
+    "Every fixture finding must include an applied diff and green re-test evidence.",
+  );
+  assert(
+    repository.snapshot.files
+      .find((file) => file.path === "src/lib/client-config.ts")
+      ?.content.includes("sk_live_demo_invoicepilot"),
+    "The original vulnerable repository must remain unchanged.",
   );
 
   const injectionPass = report.passes.find(
@@ -99,11 +117,11 @@ async function main() {
     "IP-003",
     "The report should lead with the cross-tenant logic flaw.",
   );
-  assert.equal(reportVerdict(report).label, "NOT READY TO SHIP");
+  assert.equal(reportVerdict(report).label, "PATCHED + VERIFIED");
   assert.match(severityGuidance.critical, /before/i);
 
   console.log(
-    "✓ M2/M3 fixture verified: bounded intake, 4 hunts, 8 findings, plain-English report logic",
+    "✓ Full fixture loop verified: bounded intake, 4 hunts, 8 exact patches, 8 green re-tests, original unchanged",
   );
 }
 

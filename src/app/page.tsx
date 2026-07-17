@@ -43,7 +43,7 @@ export default function Home() {
 
         <div className="header-status" aria-label="Build status">
           <span className="status-dot" aria-hidden="true" />
-          <span>M3 · REPORT READY</span>
+          <span>BUILD COMPLETE · 8/8 GREEN</span>
         </div>
       </header>
 
@@ -62,15 +62,12 @@ export default function Home() {
             </p>
 
             <div className="hero-actions">
-              <a className="primary-action" href="/analyze">
-                Run the report
+              <a className="primary-action" href="/demo">
+                Open one-click demo
                 <span aria-hidden="true">↘</span>
               </a>
-              <a
-                className="text-action"
-                href="https://invoicepilot-deadbolt-demo.vercel.app"
-              >
-                Open InvoicePilot
+              <a className="text-action" href="/analyze">
+                Audit my source
               </a>
             </div>
 
@@ -92,7 +89,7 @@ export default function Home() {
                 <p className="micro-label">AUDIT RUN</p>
                 <p className="run-id">DB—CORE</p>
               </div>
-              <span className="queued-badge">REPORT READY · SOL DEFERRED</span>
+              <span className="queued-badge">PATCHED + VERIFIED · 8/8</span>
             </div>
 
             <div className="scan-field" aria-hidden="true">
@@ -148,9 +145,9 @@ export default function Home() {
               <h2>A finding is not finished until the fix turns green.</h2>
             </div>
             <p className="section-note">
-              M3 turns the structured hunt into a plain-English product
-              experience: human stakes first, linked evidence second, and a
-              clear safer target. Patch and re-test stay gated.
+              Deadbolt applies each focused diff to an isolated clone, re-runs
+              the finding-specific invariant, and keeps the original source
+              untouched for review.
             </p>
           </div>
 
@@ -186,7 +183,7 @@ export default function Home() {
 
       <footer>
         <p>DEADBOLT · OPENAI BUILD WEEK 2026</p>
-        <p>M3 REPORT READY · JUL 17</p>
+        <p>FULL LOOP LIVE · JUL 17</p>
       </footer>
     </div>
   );

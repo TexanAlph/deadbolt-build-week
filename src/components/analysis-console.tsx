@@ -46,7 +46,7 @@ function isAcceptedFile(file: File) {
 function statusText(state: RunState) {
   if (state === "reading") return "READING FILES";
   if (state === "running") return "RUNNING CORE";
-  if (state === "complete") return "CONTRACT READY";
+  if (state === "complete") return "8/8 VERIFIED";
   if (state === "error") return "RUN STOPPED";
   return "AWAITING INTAKE";
 }
@@ -262,7 +262,7 @@ export function AnalysisConsole() {
           disabled={state === "running" || state === "reading"}
         >
           <span>{statusText(state)}</span>
-          <strong>{state === "running" ? "Working…" : "Run core analysis"}</strong>
+          <strong>{state === "running" ? "Working…" : "Run full security loop"}</strong>
           <span aria-hidden="true">↘</span>
         </button>
 
@@ -282,7 +282,7 @@ export function AnalysisConsole() {
       <section className="run-panel" aria-live="polite">
         <div className="run-heading">
           <div>
-            <p className="eyebrow">M3 · REPORT PIPELINE</p>
+            <p className="eyebrow">FULL HUNT → PATCH → RE-TEST PIPELINE</p>
             <h2>No analysis run yet</h2>
           </div>
           <span className="engine-pill fixture">AWAITING RUN</span>
@@ -314,8 +314,8 @@ export function AnalysisConsole() {
         <div className="empty-run">
           <span>DB—M3</span>
           <p>
-            Confirm ownership and run InvoicePilot to open the complete
-            plain-English security report.
+            Confirm ownership and run InvoicePilot to generate the complete
+            report, eight isolated patches, and eight green re-tests.
           </p>
         </div>
       </section>

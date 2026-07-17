@@ -10,7 +10,8 @@
     "typecheck": "tsc --noEmit",
     "verify:core": "tsx scripts/verify-analysis.ts",
     "verify:report": "tsx scripts/verify-report.tsx",
-    "check": "npm run lint && npm run typecheck && npm run verify:core && npm run verify:report && npm run build"
+    "verify:live": "tsx scripts/verify-live.ts",
+    "check": "npm run lint && npm run typecheck && npm run verify:core && npm run verify:report && npm run verify:live && npm run build"
   },
   "dependencies": {
     "next": "16.2.10",

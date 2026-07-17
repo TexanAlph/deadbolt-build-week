@@ -36,23 +36,23 @@ export const metadata: Metadata = {
   openGraph: {
     type: "website",
     siteName: "Deadbolt",
-    title: "Deadbolt — Reason across the code",
+    title: "Deadbolt — Find it, patch it, prove it",
     description:
-      "A plain-English security report that connects source evidence to the human stakes.",
+      "A blue-team security loop for solo builders: threat model, hunt, patch, and re-test to green.",
     images: [
       {
         url: "/og.png",
         width: 1200,
         height: 630,
-        alt: "A Deadbolt scan beam isolates a software bug inside a repository evidence graph.",
+        alt: "A Deadbolt scan beam isolates a red software bug and connects it to a green verified shield.",
       },
     ],
   },
   twitter: {
     card: "summary_large_image",
-    title: "Deadbolt — Reason across the code",
+    title: "Deadbolt — Find it, patch it, prove it",
     description:
-      "A plain-English security report that connects source evidence to the human stakes.",
+      "A blue-team security loop for solo builders: threat model, hunt, patch, and re-test to green.",
     images: ["/og.png"],
   },
 };

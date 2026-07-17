@@ -23,6 +23,10 @@ import {
   severities,
 } from "./schemas";
 import {
+  applyPatchPlans,
+  type PatchPlan,
+} from "./patch-engine";
+import {
   buildLocalEvidenceDigest,
   readRepositoryFiles,
   renderRepositoryBundle,
@@ -33,6 +37,8 @@ import {
 import {
   CORE_HUNT_PROMPT,
   EVIDENCE_REDUCTION_PROMPT,
+  PATCH_PROMPT,
+  RETEST_PROMPT,
   THREAT_MODEL_PROMPT,
   huntInstructions,
 } from "./prompts";
@@ -63,6 +69,45 @@ const ReadArgumentsSchema = z
       )
       .min(1)
       .max(10),
+  })
+  .strict();
+
+const PatchBundleSchema = z
+  .object({
+    plans: z.array(
+      z
+        .object({
+          findingId: z.string(),
+          summary: z.string(),
+          edits: z
+            .array(
+              z
+                .object({
+                  path: z.string(),
+                  expected: z.string(),
+                  replacement: z.string(),
+                })
+                .strict(),
+            )
+            .min(1)
+            .max(8),
+        })
+        .strict(),
+    ),
+  })
+  .strict();
+
+const RetestBundleSchema = z
+  .object({
+    results: z.array(
+      z
+        .object({
+          findingId: z.string(),
+          status: z.enum(["passed", "failed"]),
+          evidence: z.string(),
+        })
+        .strict(),
+    ),
   })
   .strict();
 
@@ -457,6 +502,158 @@ async function runHuntPass(
   });
 }
 
+async function runPatchAndRetest(
+  client: OpenAI,
+  snapshot: RepositorySnapshot,
+  findings: Finding[],
+  usage: UsageCollector,
+) {
+  if (findings.length === 0) {
+    return {
+      findings,
+      summary: {
+        sandboxed: true as const,
+        originalRepositoryUnchanged: true as const,
+        patchesGenerated: 0,
+        patchesApplied: 0,
+        retestsPassed: 0,
+        retestsFailed: 0,
+      },
+    };
+  }
+
+  const patchResponse = await client.responses.parse({
+    model: SOL_MODEL,
+    store: false,
+    input: [
+      stableDeveloperMessage(PATCH_PROMPT),
+      {
+        role: "user",
+        content: [
+          {
+            type: "input_text",
+            text: [
+              `<findings>${JSON.stringify(findings)}</findings>`,
+              `<repository>${renderRepositoryBundle(snapshot)}</repository>`,
+            ].join("\n\n"),
+          },
+        ],
+      },
+    ],
+    reasoning: { effort: "max", summary: "auto" },
+    text: {
+      format: zodTextFormat(PatchBundleSchema, "deadbolt_patch_bundle"),
+      verbosity: "medium",
+    },
+    include: ["reasoning.encrypted_content"],
+    prompt_cache_key: "deadbolt:patch:v1",
+    prompt_cache_options: { mode: "explicit", ttl: "30m" },
+    safety_identifier: "deadbolt-self-audit",
+    max_output_tokens: 24_000,
+    metadata: { stage: "patch" },
+  });
+  usage.add(patchResponse.usage);
+  const bundle = requireParsed(
+    patchResponse.output_parsed,
+    "Patch generation",
+  );
+  const knownFindingIds = new Set(findings.map((finding) => finding.id));
+  const plans: PatchPlan[] = bundle.plans
+    .filter((plan) => knownFindingIds.has(plan.findingId))
+    .map((plan) => ({ ...plan }));
+  const { sandbox, results } = applyPatchPlans(snapshot, plans);
+  const patchesByFinding = new Map(
+    results.map((result) => [result.findingId, result]),
+  );
+  const appliedFindingIds = results
+    .filter((result) => result.applied)
+    .map((result) => result.findingId);
+
+  let retestResults: z.infer<typeof RetestBundleSchema>["results"] = [];
+  if (appliedFindingIds.length > 0) {
+    const retestResponse = await client.responses.parse({
+      model: SOL_MODEL,
+      store: false,
+      input: [
+        stableDeveloperMessage(RETEST_PROMPT),
+        {
+          role: "user",
+          content: [
+            {
+              type: "input_text",
+              text: [
+                `<findings>${JSON.stringify(
+                  findings.filter((finding) =>
+                    appliedFindingIds.includes(finding.id),
+                  ),
+                )}</findings>`,
+                `<patched_repository>${renderRepositoryBundle(sandbox)}</patched_repository>`,
+              ].join("\n\n"),
+            },
+          ],
+        },
+      ],
+      reasoning: { effort: "max", summary: "auto" },
+      text: {
+        format: zodTextFormat(RetestBundleSchema, "deadbolt_retest_bundle"),
+        verbosity: "medium",
+      },
+      include: ["reasoning.encrypted_content"],
+      prompt_cache_key: "deadbolt:retest:v1",
+      prompt_cache_options: { mode: "explicit", ttl: "30m" },
+      safety_identifier: "deadbolt-self-audit",
+      max_output_tokens: 16_000,
+      metadata: { stage: "retest" },
+    });
+    usage.add(retestResponse.usage);
+    retestResults = requireParsed(
+      retestResponse.output_parsed,
+      "Patch re-test",
+    ).results;
+  }
+
+  const retestByFinding = new Map(
+    retestResults.map((result) => [result.findingId, result]),
+  );
+  const remediatedFindings = findings.map((finding): Finding => {
+    const patch = patchesByFinding.get(finding.id);
+    const retest = retestByFinding.get(finding.id);
+
+    return {
+      ...finding,
+      patchDiff: patch?.diff || null,
+      patchStatus: patch?.applied
+        ? "applied_to_sandbox"
+        : patch?.diff
+          ? "generated"
+          : "not_generated",
+      retestStatus: patch?.applied
+        ? (retest?.status ?? "failed")
+        : "not_run",
+      retestEvidence:
+        retest?.evidence ??
+        patch?.error ??
+        "No exact patch could be applied to the sandbox.",
+    };
+  });
+
+  return {
+    findings: remediatedFindings,
+    summary: {
+      sandboxed: true as const,
+      originalRepositoryUnchanged: true as const,
+      patchesGenerated: results.filter((result) => result.diff).length,
+      patchesApplied: results.filter((result) => result.applied).length,
+      retestsPassed: remediatedFindings.filter(
+        (finding) => finding.retestStatus === "passed",
+      ).length,
+      retestsFailed: remediatedFindings.filter(
+        (finding) => finding.retestStatus === "failed",
+      ).length,
+    },
+  };
+}
+
 export async function runOpenAIAnalysis(
   repository: PreparedRepository,
   runId: string,
@@ -487,13 +684,28 @@ export async function runOpenAIAnalysis(
     ),
   );
   const distilled = distillFindings(passes);
+  const remediation = await runPatchAndRetest(
+    client,
+    repository.snapshot,
+    distilled,
+    usage,
+  );
+  const remediatedById = new Map(
+    remediation.findings.map((finding) => [finding.id, finding]),
+  );
+  const remediatedPasses = passes.map((pass) => ({
+    ...pass,
+    findings: pass.findings.map(
+      (finding) => remediatedById.get(finding.id) ?? finding,
+    ),
+  }));
   const completedClasses = passes.map((pass) => pass.huntClass);
   const cleanClasses = passes
     .filter((pass) => pass.findings.length === 0)
     .map((pass) => pass.huntClass);
 
   return AnalysisReportSchema.parse({
-    schemaVersion: "0.2.0",
+    schemaVersion: "1.0.0",
     runId,
     generatedAt: new Date().toISOString(),
     elapsedMs: Date.now() - startedAt,
@@ -513,13 +725,14 @@ export async function runOpenAIAnalysis(
       excludedFiles: repository.excludedFiles,
     },
     threatModel,
-    passes,
-    findings: distilled,
+    passes: remediatedPasses,
+    findings: remediation.findings,
     coverage: {
       requestedClasses: [...huntClasses],
       completedClasses,
       cleanClasses,
     },
+    remediation: remediation.summary,
     usage: usage.value(),
   });
 }
