@@ -56,4 +56,8 @@ Official references:
 - `npm audit --audit-level=moderate` — pass, 0 vulnerabilities.
 - Removed unused starter artwork and the generic favicon.
 
-Deployment pending.
+### 17:07 CDT — First Vercel deployment repair
+
+- The Vercel build compiled and prerendered every route, then failed because the newly created project had defaulted to the generic `public` output preset.
+- Added a checked-in `vercel.json` that declares the Next.js framework and clears the generic output-directory override.
+- Re-deploying the same M0 application with the corrected hosting contract.
