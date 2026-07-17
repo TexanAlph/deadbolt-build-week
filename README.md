@@ -10,6 +10,10 @@ Deadbolt is being built for solo builders who can ship an application faster tha
 
 The analysis engine, InvoicePilot demo, reports, patches, and re-test loop are deliberately not represented as working yet. Each milestone must be shown working before the next one starts.
 
+## Live foundation
+
+https://deadbolt-build-week.vercel.app
+
 ## Safety boundary
 
 - Audit only repositories and deployments you own or are authorized to test.

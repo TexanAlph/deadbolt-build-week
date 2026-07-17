@@ -60,4 +60,11 @@ Official references:
 
 - The Vercel build compiled and prerendered every route, then failed because the newly created project had defaulted to the generic `public` output preset.
 - Added a checked-in `vercel.json` that declares the Next.js framework and clears the generic output-directory override.
-- Re-deploying the same M0 application with the corrected hosting contract.
+- Re-deployed the same M0 application with the corrected hosting contract.
+
+### 17:09 CDT — M0 live
+
+- Production deployment status: **Ready**.
+- Stable URL: https://deadbolt-build-week.vercel.app
+- Production verification: HTTP 200 with the expected Deadbolt page title.
+- M0 is complete. Stop here before starting InvoicePilot (M1).
