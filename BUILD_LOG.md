@@ -308,3 +308,29 @@ Official references:
 - `samples/invoice-pilot npm run check` — pass: lint, types, all eight planted
   seeds, production build, and browser-bundle exposure.
 - Final root production build, deployments, and production checks follow below.
+
+### 18:44 CDT — M9 production completion proof
+
+- InvoicePilot production deployment: **Ready**.
+  - Stable URL: https://invoicepilot-deadbolt-demo.vercel.app
+  - Deployment ID: `dpl_6hsUXvBQ1yWHpvHaadhTYs5U5yy2`
+  - Ownership file returned the exact expected token.
+  - All 14 intentional vulnerable-runtime assertions still passed against the
+    stable production URL, preserving the “before” side of the demo.
+- Deadbolt production deployment: **Ready**.
+  - Stable URL: https://deadbolt-build-week.vercel.app
+  - Deployment ID: `dpl_GQ5p26x3hFaYPuHwhriLVdBPRyiu`
+  - `/` returned `BUILD COMPLETE · 8/8 GREEN`.
+  - `/demo` returned the pre-run `PATCHED + VERIFIED` experience.
+  - `/og.png` returned the final 1200×630 bug → verified-shield campaign card.
+  - Production `/api/analyze` returned schema `1.0.0`, 8 findings, 8 generated
+    and applied sandbox patches, 8 passed re-tests, 0 failures, and
+    `originalRepositoryUnchanged: true`.
+  - The production capability response remained honest:
+    `liveModelConfigured: false`, `mode: fixture`.
+  - Production `/api/verify-live` verified the ownership token and confirmed
+    IP-008, IP-005, IP-003, and IP-006 on the allowlisted synthetic deployment.
+- M0–M9 are implemented, locally validated, committed, deployed, and verified.
+  Public repository publication remains an external handoff because this local
+  repository has no configured Git remote; no remote account or repository name
+  was invented.
