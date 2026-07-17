@@ -13,6 +13,10 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
+  metadataBase: new URL(
+    process.env.NEXT_PUBLIC_SITE_URL ??
+      "https://deadbolt-build-week.vercel.app",
+  ),
   title: {
     default: "Deadbolt — Security for builders moving fast",
     template: "%s · Deadbolt",
@@ -26,6 +30,31 @@ export const metadata: Metadata = {
     "security agent",
     "vibe coding",
   ],
+  alternates: {
+    canonical: "/",
+  },
+  openGraph: {
+    type: "website",
+    siteName: "Deadbolt",
+    title: "Deadbolt — Reason across the code",
+    description:
+      "A bounded blue-team analysis core for finding security flaws across apps you own.",
+    images: [
+      {
+        url: "/og.png",
+        width: 1200,
+        height: 630,
+        alt: "Deadbolt scans a repository evidence graph for a security fault.",
+      },
+    ],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Deadbolt — Reason across the code",
+    description:
+      "A bounded blue-team analysis core for finding security flaws across apps you own.",
+    images: ["/og.png"],
+  },
 };
 
 export default function RootLayout({

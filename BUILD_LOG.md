@@ -9,10 +9,10 @@ This is the dated evidence trail for the OpenAI Build Week build. Log material m
 | Persistent `/goal` | Active | M0 objective includes outcome, constraints, validation, commit, and live deployment. |
 | Review → repair → validate | Active | M0 and M1 use lint, typecheck, production builds, runtime checks, and repair passes before completion. |
 | Slim `AGENTS.md` | Active | Repository intent, guardrails, milestone discipline, and validation commands are kept in one concise file. |
-| Parallel subagent hunts | Planned for M2 | Four independent passes: secrets; auth/IDOR; injection; config/CORS/headers. Do not claim as used before M2. |
-| Programmatic Tool Calling | Researched; planned for M2 | Reserved for a bounded evidence-reduction stage with an exact schema, retry limit, and stop condition. |
-| Prompt caching | Researched; planned for M2 | Stable repository and threat-model context will precede dynamic scan input; cache reads/writes will be measured. |
-| Structured Outputs | Planned for M2 | Findings will use a strict schema rather than best-effort JSON. |
+| Parallel subagent hunts | Used for M2 evidence | Independent secrets, auth/IDOR, injection, and config/CORS/header passes confirmed all eight planted flaws; injection correctly remained clean. Runtime hunt contracts are also independent. |
+| Programmatic Tool Calling | Implemented; live validation deferred | A bounded Terra evidence reducer exposes only repository search/read tools, caps turns and calls, retries twice, and falls back to local evidence. |
+| Prompt caching | Implemented; live measurement deferred | Stable instructions and repository context precede dynamic hunt input; cache keys, breakpoints, TTL, cached tokens, and cache-write tokens are wired. |
+| Structured Outputs | Implemented; fixture-validated | Threat model, hunt pass, evidence digest, findings, usage, and final report all parse through strict Zod-backed schemas. |
 
 ## 2026-07-17
 
@@ -108,3 +108,57 @@ Official references:
 - Verified the production metadata resolves the 1200×630 social card at
   `https://invoicepilot-deadbolt-demo.vercel.app/og.png`.
 - M1 is complete. Stop here before starting the GPT-5.6 Sol hunt pipeline (M2).
+
+### 17:32 CDT — M2 parallel evidence review
+
+- Delegated the four vulnerability classes required by `AGENTS.md` to
+  independent review passes.
+- Secrets confirmed IP-001.
+- Auth/IDOR confirmed IP-002, IP-003, IP-004, and IP-007, including the
+  cross-file IDOR chain through the unscoped invoice lookup.
+- Injection found no SQL, shell, template, or code-evaluation sink—the intended
+  negative control.
+- Config/CORS/headers confirmed IP-005, IP-006, and IP-008.
+- The review findings were distilled in the main task before implementation.
+
+### 17:43 CDT — Current model contract verified
+
+- Re-checked the current official GPT-5.6 guidance and installed the official
+  OpenAI JavaScript SDK plus Zod.
+- Confirmed the SDK types for GPT-5.6 Sol, explicit `reasoning.effort: "max"`,
+  Structured Outputs, programmatic tool callers, prompt cache breakpoints, and
+  cache usage fields.
+- Kept all model access behind one provider boundary. The user elected to skip
+  adding the API credential for now, so no live GPT call is claimed.
+
+### 18:07 CDT — M2 core staged and locally verified
+
+- Added bounded repository intake: 100 files, 40K characters per file, 320K
+  characters total, traversal rejection, text allowlisting, and exclusions for
+  env files, keys, dependencies, VCS data, and build output.
+- Implemented threat-model, evidence-digest, four hunt-pass, finding, coverage,
+  usage, and final-report contracts with strict schemas.
+- Implemented the live provider path with GPT-5.6 Sol for threat modeling and
+  hunts, a bounded Terra Programmatic Tool Calling reducer, cache measurement,
+  retries, and deterministic fallback.
+- Added the `/api/analyze` boundary with ownership confirmation, request-size
+  limits, concurrency and rate limits, safe errors, and no-store/nosniff
+  responses.
+- Added the `/analyze` intake and M2 contract preview. It labels the engine as
+  `FIXTURE · SOL DEFERRED` unless a live model actually ran.
+- Added a 1200×630 generated social-preview card and wired absolute Open Graph
+  and Twitter metadata.
+- `npm run check` — pass: lint, strict typecheck, core verifier, and production
+  build.
+- Removed an over-broad serverless trace by suppressing dynamic root tracing and
+  explicitly including only the 19 InvoicePilot demo files required by the API.
+  The production build then completed without warnings.
+- `npm audit --audit-level=moderate` — pass, 0 vulnerabilities.
+- Local API proof:
+  - capability — HTTP 200, fixture mode, live model not configured;
+  - InvoicePilot demo — HTTP 200, 8 findings, 4 passes, injection clean;
+  - missing ownership confirmation — HTTP 400;
+  - uploaded source without a live key — HTTP 503
+    `live_provider_unavailable`.
+- M2 is staged, not complete. The remaining gate is one live GPT-5.6 Sol run with
+  schema validation and measured PTC/cache usage. M3 has not started.

@@ -6,12 +6,18 @@ Deadbolt is being built for solo builders who can ship an application faster tha
 
 ## Current milestone
 
-**M1 — Seeded demo app:** InvoicePilot is a realistic, deliberately vulnerable
-SaaS with eight synthetic security flaws and its own live Vercel deployment.
+**M2 — Core analysis, staged:** Deadbolt now accepts a bounded repository
+snapshot, builds a threat model, reduces evidence, runs four specialized hunt
+contracts, and returns strict structured findings.
 
-The Deadbolt analysis engine, reports, patches, and re-test loop are deliberately
-not represented as working yet. Each milestone must be shown working before the
-next one starts.
+InvoicePilot exercises the full contract through a deterministic fixture with
+eight verified findings and one intentional clean injection pass. The live
+GPT-5.6 Sol provider, Structured Outputs, Programmatic Tool Calling, prompt-cache
+measurement, and retry boundary are implemented but still require an
+`OPENAI_API_KEY` for live validation. M2 remains staged—not complete—until that
+gate is passed.
+
+Patches and re-tests remain deliberately gated for M4–M5.
 
 ## Live foundation
 
@@ -39,6 +45,11 @@ npm run dev
 ```
 
 Open [http://localhost:3000](http://localhost:3000).
+
+The InvoicePilot fixture works without credentials. To analyze uploaded source
+files with the live provider, set `OPENAI_API_KEY` locally and leave
+`DEADBOLT_ANALYSIS_MODE` unset. Set `DEADBOLT_ANALYSIS_MODE=fixture` to force the
+deterministic demo path.
 
 ## Validate
 

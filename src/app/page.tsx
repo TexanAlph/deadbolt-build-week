@@ -43,7 +43,7 @@ export default function Home() {
 
         <div className="header-status" aria-label="Build status">
           <span className="status-dot" aria-hidden="true" />
-          <span>M0 · FOUNDATION ONLINE</span>
+          <span>M2 · CORE STAGED</span>
         </div>
       </header>
 
@@ -62,12 +62,15 @@ export default function Home() {
             </p>
 
             <div className="hero-actions">
-              <a className="primary-action" href="#pipeline">
-                See the mission
+              <a className="primary-action" href="/analyze">
+                Run the core
                 <span aria-hidden="true">↘</span>
               </a>
-              <a className="text-action" href="#guardrail">
-                Read the safety boundary
+              <a
+                className="text-action"
+                href="https://invoicepilot-deadbolt-demo.vercel.app"
+              >
+                Open InvoicePilot
               </a>
             </div>
 
@@ -87,9 +90,9 @@ export default function Home() {
             <div className="visual-topline">
               <div>
                 <p className="micro-label">AUDIT RUN</p>
-                <p className="run-id">DB—0001</p>
+                <p className="run-id">DB—CORE</p>
               </div>
-              <span className="queued-badge">AWAITING REPOSITORY</span>
+              <span className="queued-badge">FIXTURE READY · SOL DEFERRED</span>
             </div>
 
             <div className="scan-field" aria-hidden="true">
@@ -145,8 +148,9 @@ export default function Home() {
               <h2>A finding is not finished until the fix turns green.</h2>
             </div>
             <p className="section-note">
-              M0 establishes the product foundation. The working analysis
-              pipeline arrives milestone by milestone from here.
+              M2 wires bounded repository intake, a threat model, evidence
+              reduction, four parallel hunt contracts, and strict structured
+              findings. Patch and re-test stay gated.
             </p>
           </div>
 
@@ -182,7 +186,7 @@ export default function Home() {
 
       <footer>
         <p>DEADBOLT · OPENAI BUILD WEEK 2026</p>
-        <p>FOUNDATION COMMIT · JUL 17</p>
+        <p>CORE ENGINE STAGED · JUL 17</p>
       </footer>
     </div>
   );

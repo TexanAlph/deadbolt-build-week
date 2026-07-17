@@ -12,6 +12,8 @@ const eslintConfig = defineConfig([
     "out/**",
     "build/**",
     "next-env.d.ts",
+    // InvoicePilot is a standalone fixture app with its own config and checks.
+    "samples/**",
   ]),
 ]);
 
