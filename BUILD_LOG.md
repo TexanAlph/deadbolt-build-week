@@ -365,3 +365,18 @@ Official references:
     live-verification gate
   - `npm run verify:live` — owned-host and bounded-check contracts
   - `npm run build` — all static and dynamic routes compiled successfully
+
+### 14:46 CDT — Redesigned experience promoted to production
+
+- Authenticated the existing Vercel CLI project link and deployed the validated
+  homepage and scan-flow redesign to the existing production target.
+- Vercel deployment `dpl_2L7jhMJ8uutpPMBTSDzdL9jTbDoU` reached **Ready** and
+  the stable alias remained https://deadbolt-build-week.vercel.app.
+- Production verification confirmed:
+  - the homepage serves `Scan InvoicePilot now`, the restored cinematic
+    bug-finding artwork, the IDOR evidence preview, and the full-loop message;
+  - `/analyze` serves the preselected InvoicePilot ready state and the explicit
+    patch and re-test stages;
+  - `/og.png` returns the final campaign artwork with HTTP 200;
+  - `/api/analyze` returns schema `1.0.0`, 8 findings, 8 generated and applied
+    patches, 8 passed re-tests, 0 failures, and preserves the original source.
