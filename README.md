@@ -19,7 +19,8 @@ security dashboard, or admin setup is required.
    four bounded live checks against the synthetic “before” deployment.
 
 Live product: [deadbolt-build-week.vercel.app](https://deadbolt-build-week.vercel.app)  
-Seeded app: [invoicepilot-deadbolt-demo.vercel.app](https://invoicepilot-deadbolt-demo.vercel.app)
+Seeded app: [invoicepilot-deadbolt-demo.vercel.app](https://invoicepilot-deadbolt-demo.vercel.app)  
+Public source: [github.com/TexanAlph/deadbolt-build-week](https://github.com/TexanAlph/deadbolt-build-week)
 
 Everything in InvoicePilot is fictional. It has no real users, database,
 payment processor, credentials, or persistent integration.

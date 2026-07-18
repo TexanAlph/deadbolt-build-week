@@ -331,6 +331,12 @@ Official references:
   - Production `/api/verify-live` verified the ownership token and confirmed
     IP-008, IP-005, IP-003, and IP-006 on the allowlisted synthetic deployment.
 - M0–M9 are implemented, locally validated, committed, deployed, and verified.
-  Public repository publication remains an external handoff because this local
-  repository has no configured Git remote; no remote account or repository name
-  was invented.
+
+### 14:05 CDT — Public GitHub handoff complete
+
+- Verified the authenticated GitHub CLI account `TexanAlph` and its repository
+  permissions.
+- Created the public repository
+  https://github.com/TexanAlph/deadbolt-build-week, added it as `origin`, pushed
+  the complete dated `main` history, and enabled upstream tracking.
+- The public-code submission requirement is now satisfied.
