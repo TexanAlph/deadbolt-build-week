@@ -8,15 +8,20 @@ app, hunts for security failures that require code reasoning, explains the
 human stakes, writes focused patches, and re-tests every fix. No CodeQL, CI/CD,
 security dashboard, or admin setup is required.
 
-## Try it in 30 seconds
+## Scan InvoicePilot in 30 seconds
 
-1. Open the [one-click InvoicePilot report](https://deadbolt-build-week.vercel.app/demo).
-2. Select **IP-003** to see the cross-tenant invoice flaw Deadbolt traced
-   across the route and data layer.
-3. Compare **Before patch** with **After patch**, inspect the exact diff, and
-   read the green re-test evidence.
-4. Optional: under **Owned staging**, check the authorization box and run the
-   four bounded live checks against the synthetic “before” deployment.
+1. Open the [Deadbolt scanner](https://deadbolt-build-week.vercel.app/analyze#scan).
+2. Leave **InvoicePilot demo** selected. It is a synthetic app owned by this
+   project, with 19 source files and eight planted risks.
+3. Check **I own this code or I am explicitly authorized to audit it**.
+4. Press **Scan InvoicePilot → patch → re-test**.
+5. Review the threat model, eight plain-English findings, exact source
+   evidence, eight focused patch diffs, and eight green re-tests.
+
+For the fastest read-only walkthrough, open the
+[completed InvoicePilot report](https://deadbolt-build-week.vercel.app/demo)
+and select **IP-003** to inspect the cross-tenant invoice flaw from evidence to
+verified fix.
 
 Live product: [deadbolt-build-week.vercel.app](https://deadbolt-build-week.vercel.app)  
 Seeded app: [invoicepilot-deadbolt-demo.vercel.app](https://invoicepilot-deadbolt-demo.vercel.app)  
