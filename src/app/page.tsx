@@ -1,136 +1,167 @@
-export default function Home() {
-  const pipeline = [
-    {
-      number: "01",
-      label: "Map",
-      title: "Threat-model the app",
-      description:
-        "Trace entry points, authentication, sensitive data, and trust boundaries before judging risk.",
-    },
-    {
-      number: "02",
-      label: "Hunt",
-      title: "Reason across the code",
-      description:
-        "Find logic flaws and dangerous paths that pattern-matching scanners routinely miss.",
-    },
-    {
-      number: "03",
-      label: "Repair",
-      title: "Write the patch",
-      description:
-        "Turn every confirmed finding into a focused, reviewable diff with the human stakes attached.",
-    },
-    {
-      number: "04",
-      label: "Verify",
-      title: "Re-test to green",
-      description:
-        "Run the evidence back through the same checks and prove the risk actually changed.",
-    },
-  ];
+import Image from "next/image";
 
+const pipeline = [
+  {
+    number: "01",
+    verb: "MAP",
+    title: "Threat-model the app",
+    description:
+      "Trace entry points, identity, sensitive data, and trust boundaries before judging risk.",
+  },
+  {
+    number: "02",
+    verb: "HUNT",
+    title: "Reason across the code",
+    description:
+      "Four focused passes hunt secrets, auth flaws, injection, and dangerous configuration.",
+  },
+  {
+    number: "03",
+    verb: "PATCH",
+    title: "Write the smallest fix",
+    description:
+      "Turn every confirmed finding into a focused, reviewable diff with the human stakes attached.",
+  },
+  {
+    number: "04",
+    verb: "PROVE",
+    title: "Re-test to green",
+    description:
+      "Re-run the original security invariant and show exactly what changed from red to green.",
+  },
+];
+
+const scanSteps = [
+  {
+    number: "01",
+    title: "Open the scanner",
+    detail: "InvoicePilot is already selected and ready.",
+  },
+  {
+    number: "02",
+    title: "Confirm authorization",
+    detail: "The sample is synthetic and owned by this project.",
+  },
+  {
+    number: "03",
+    title: "Run the full loop",
+    detail: "Review 8 findings, 8 patches, and 8 green re-tests.",
+  },
+];
+
+export default function Home() {
   return (
-    <div className="site-shell">
-      <header className="site-header">
+    <div className="site-shell home-shell">
+      <header className="site-header home-header">
         <a className="brand" href="#top" aria-label="Deadbolt home">
           <span className="brand-mark" aria-hidden="true">
             D
           </span>
           <span className="brand-name">DEADBOLT</span>
-          <span className="working-name">WORKING NAME</span>
+          <span className="brand-descriptor">AUTONOMOUS BLUE TEAM</span>
         </a>
+
+        <nav className="home-nav" aria-label="Main navigation">
+          <a href="#how">HOW IT WORKS</a>
+          <a href="/demo">COMPLETED REPORT</a>
+          <a
+            href="https://github.com/TexanAlph/deadbolt-build-week"
+            target="_blank"
+            rel="noreferrer"
+          >
+            GITHUB ↗
+          </a>
+        </nav>
 
         <div className="header-status" aria-label="Build status">
           <span className="status-dot" aria-hidden="true" />
-          <span>BUILD COMPLETE · 8/8 GREEN</span>
+          <span>8/8 VERIFIED</span>
         </div>
       </header>
 
       <main id="top">
-        <section className="hero">
-          <div className="hero-copy">
-            <p className="eyebrow">AUTONOMOUS BLUE-TEAM SECURITY</p>
-            <h1>
-              Ship fast.
-              <span>Leave nothing unlocked.</span>
-            </h1>
-            <p className="hero-lede">
-              Deadbolt gives solo builders the security loop enterprise teams
-              already have: understand the app, find what matters, write the
-              fix, and prove it worked.
-            </p>
+        <section className="campaign-hero" aria-labelledby="campaign-heading">
+          <h1 className="sr-only" id="campaign-heading">
+            Deadbolt finds security bugs, patches them, and proves the fix
+          </h1>
 
-            <div className="hero-actions">
-              <a className="primary-action" href="/demo">
-                Open one-click demo
-                <span aria-hidden="true">↘</span>
-              </a>
-              <a className="text-action" href="/analyze">
-                Audit my source
-              </a>
-            </div>
-
-            <div className="ownership-note">
-              <span className="mini-lock" aria-hidden="true" />
-              <p>
-                <strong>Built for your own code.</strong> Deadbolt audits only
-                repositories and deployments you own or are authorized to test.
-              </p>
-            </div>
+          <div className="campaign-frame">
+            <Image
+              className="campaign-art"
+              src="/og.png"
+              alt="A focused beam reveals a security bug in source code, then points to a verified green shield."
+              width={1200}
+              height={630}
+              sizes="(max-width: 720px) 100vw, 1400px"
+              preload
+            />
+            <span className="frame-corner top-left" aria-hidden="true" />
+            <span className="frame-corner top-right" aria-hidden="true" />
+            <span className="frame-corner bottom-left" aria-hidden="true" />
+            <span className="frame-corner bottom-right" aria-hidden="true" />
           </div>
 
-          <div
-            className="hero-visual"
-            aria-label="Deadbolt audit pipeline preview"
-          >
-            <div className="visual-topline">
-              <div>
-                <p className="micro-label">AUDIT RUN</p>
-                <p className="run-id">DB—CORE</p>
-              </div>
-              <span className="queued-badge">PATCHED + VERIFIED · 8/8</span>
+          <div className="scan-command">
+            <div className="scan-command-title">
+              <p>READY-TO-SCAN SAMPLE</p>
+              <strong>InvoicePilot</strong>
+              <span>Synthetic invoice SaaS with known ground truth</span>
             </div>
 
-            <div className="scan-field" aria-hidden="true">
-              <div className="radar-ring ring-one" />
-              <div className="radar-ring ring-two" />
-              <div className="radar-cross horizontal" />
-              <div className="radar-cross vertical" />
-              <div className="scan-beam" />
-              <div className="target-core">
-                <span className="target-bolt">D</span>
-              </div>
-              <span className="coordinate coord-one">AUTH</span>
-              <span className="coordinate coord-two">DATA</span>
-              <span className="coordinate coord-three">INPUT</span>
-              <span className="coordinate coord-four">CONFIG</span>
+            <div className="scan-command-metrics" aria-label="Sample details">
+              <span>
+                <strong>19</strong> SOURCE FILES
+              </span>
+              <span>
+                <strong>8</strong> PLANTED RISKS
+              </span>
+              <span>
+                <strong>~20s</strong> TO RUN
+              </span>
             </div>
 
-            <div className="visual-footer">
-              <div className="stage">
-                <span>01</span>
-                <p>MAP</p>
-              </div>
-              <div className="stage">
-                <span>02</span>
-                <p>HUNT</p>
-              </div>
-              <div className="stage">
-                <span>03</span>
-                <p>PATCH</p>
-              </div>
-              <div className="stage">
-                <span>04</span>
-                <p>RE-TEST</p>
-              </div>
-            </div>
+            <a className="primary-action scan-now" href="/analyze#scan">
+              Scan InvoicePilot now
+              <span aria-hidden="true">↘</span>
+            </a>
           </div>
         </section>
 
-        <section className="positioning" aria-label="Who Deadbolt is for">
-          <p>FOR THE BUILDER WITHOUT</p>
-          <div className="positioning-list">
+        <section className="home-story">
+          <div className="home-story-title">
+            <p className="eyebrow">THE MISSING SECURITY TEAM</p>
+            <h2>
+              Find the bug.
+              <span>Fix the risk.</span>
+              <em>Prove it.</em>
+            </h2>
+          </div>
+
+          <div className="home-story-copy">
+            <p>
+              Deadbolt gives solo builders the security loop enterprise teams
+              already have: understand the application, find what matters,
+              write the fix, and prove it worked.
+            </p>
+            <div className="story-actions">
+              <a className="text-action" href="/demo">
+                View the completed report <span aria-hidden="true">→</span>
+              </a>
+              <a className="text-action muted" href="/analyze#scan">
+                Audit my source <span aria-hidden="true">→</span>
+              </a>
+            </div>
+            <p className="home-ownership">
+              <span className="mini-lock" aria-hidden="true" />
+              For repositories and deployments you own or are authorized to
+              test.
+            </p>
+          </div>
+        </section>
+
+        <section className="builder-strip" aria-label="Who Deadbolt is for">
+          <p>BUILT FOR THE DEVELOPER WITHOUT</p>
+          <div>
             <span>A SECURITY TEAM</span>
             <span>CODEQL</span>
             <span>CI/CD</span>
@@ -138,36 +169,96 @@ export default function Home() {
           </div>
         </section>
 
-        <section className="pipeline-section" id="pipeline">
-          <div className="section-heading">
+        <section className="scan-guide" id="try">
+          <div className="scan-guide-heading">
+            <p className="eyebrow">TRY THE REAL LOOP</p>
+            <h2>
+              Don&apos;t watch a mockup.
+              <span>Scan the vulnerable app yourself.</span>
+            </h2>
+          </div>
+
+          <div className="scan-guide-grid">
+            <div className="scan-steps">
+              {scanSteps.map((step) => (
+                <article key={step.number}>
+                  <span>{step.number}</span>
+                  <div>
+                    <h3>{step.title}</h3>
+                    <p>{step.detail}</p>
+                  </div>
+                </article>
+              ))}
+            </div>
+
+            <div className="evidence-preview">
+              <div className="evidence-topline">
+                <span>REPRESENTATIVE FINDING</span>
+                <strong>CRITICAL</strong>
+              </div>
+              <p className="evidence-code">IP-008 · AUTH / IDOR</p>
+              <h3>
+                One signed-in customer can read another customer&apos;s
+                invoice.
+              </h3>
+              <p>
+                The route checks that a user exists, but never proves the
+                invoice belongs to that user. Deadbolt follows the trust
+                boundary across the route and data access—not just one line.
+              </p>
+              <div className="evidence-transition" aria-label="Fix result">
+                <span>
+                  <i aria-hidden="true" />
+                  BEFORE · CROSS-TENANT READ
+                </span>
+                <b aria-hidden="true">→</b>
+                <span className="fixed">
+                  <i aria-hidden="true" />
+                  AFTER · 404 DENIED
+                </span>
+              </div>
+              <a className="primary-action" href="/analyze#scan">
+                Run this hunt
+                <span aria-hidden="true">↘</span>
+              </a>
+            </div>
+          </div>
+        </section>
+
+        <section className="process-section" id="how">
+          <div className="process-heading">
             <div>
               <p className="eyebrow">THE CORE LOOP</p>
               <h2>A finding is not finished until the fix turns green.</h2>
             </div>
-            <p className="section-note">
-              Deadbolt applies each focused diff to an isolated clone, re-runs
-              the finding-specific invariant, and keeps the original source
-              untouched for review.
+            <p>
+              Every result connects evidence, human impact, a focused patch,
+              and a finding-specific regression check.
             </p>
           </div>
 
-          <div className="pipeline-grid">
+          <div className="process-grid">
             {pipeline.map((item) => (
-              <article className="pipeline-card" key={item.number}>
-                <div className="card-meta">
+              <article key={item.number}>
+                <div className="process-number">
                   <span>{item.number}</span>
-                  <span>{item.label}</span>
+                  <strong>{item.verb}</strong>
                 </div>
                 <h3>{item.title}</h3>
                 <p>{item.description}</p>
-                <div className="card-line" aria-hidden="true" />
+                <div className="process-signal" aria-hidden="true">
+                  <i />
+                  <i />
+                  <i />
+                  <i />
+                </div>
               </article>
             ))}
           </div>
         </section>
 
-        <section className="guardrail" id="guardrail">
-          <div className="guardrail-mark" aria-hidden="true">
+        <section className="home-guardrail" id="guardrail">
+          <div className="guardrail-symbol" aria-hidden="true">
             <span />
           </div>
           <div>
@@ -181,9 +272,10 @@ export default function Home() {
         </section>
       </main>
 
-      <footer>
+      <footer className="home-footer">
         <p>DEADBOLT · OPENAI BUILD WEEK 2026</p>
-        <p>FULL LOOP LIVE · JUL 17</p>
+        <a href="/analyze#scan">SCAN INVOICEPILOT ↘</a>
+        <p>FULL LOOP LIVE · 8/8 GREEN</p>
       </footer>
     </div>
   );

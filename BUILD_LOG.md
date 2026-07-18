@@ -340,3 +340,28 @@ Official references:
   https://github.com/TexanAlph/deadbolt-build-week, added it as `origin`, pushed
   the complete dated `main` history, and enabled upstream tracking.
 - The public-code submission requirement is now satisfied.
+
+### 14:33 CDT — Homepage and first-run scan experience redesigned
+
+- Replaced the rendered CSS radar hero with the original 1200×630 campaign
+  artwork: a focused beam revealing a red code bug and resolving into a green
+  verified shield.
+- Rebuilt the homepage as a more cinematic product narrative with a campaign
+  frame, a live InvoicePilot command bar, stronger typography, a representative
+  IDOR finding, red → green evidence, a four-stage process, and a clearer
+  defensive boundary.
+- Made the working product path explicit: every primary homepage action now
+  opens `/analyze#scan` with InvoicePilot selected, 19 source files and eight
+  planted risks summarized, and a three-step first-run guide.
+- Updated the analysis console with a visible ready state, ownership guidance,
+  a specific `Scan InvoicePilot → patch → re-test` action, and a six-stage
+  idle preview that includes patching and re-testing.
+- Validation passed:
+  - `npm run lint`
+  - `npm run typecheck`
+  - `npm run verify:core` — 4 hunts, 8 findings, 8 exact patches, 8 green
+    re-tests, original unchanged
+  - `npm run verify:report` — human stakes, red → green proof, patch diff, and
+    live-verification gate
+  - `npm run verify:live` — owned-host and bounded-check contracts
+  - `npm run build` — all static and dynamic routes compiled successfully

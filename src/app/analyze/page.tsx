@@ -26,17 +26,16 @@ export default function AnalyzePage() {
 
       <section className="analysis-intro">
         <div>
-          <p className="eyebrow">REPOSITORY → HUMAN STAKES</p>
+          <p className="eyebrow">INVOICEPILOT IS READY TO SCAN</p>
           <h1>
             Find the bug.
-            <span>Understand the damage.</span>
+            <span>Fix it. Prove it.</span>
           </h1>
         </div>
         <p>
-          Deadbolt maps the application first, reduces source evidence in a
-          bounded stage, then turns four independent vulnerability hunts into a
-          report a solo builder can act on, applies focused patches to a safe
-          clone, and re-tests each original security invariant.
+          Start with the synthetic InvoicePilot sample: confirm the ownership
+          box, press the green scan button, and Deadbolt will map, hunt, patch,
+          and re-test all eight known risks. Or switch to your own source files.
         </p>
       </section>
 

@@ -171,11 +171,11 @@ export function AnalysisConsole() {
   }
 
   return (
-    <div className="analysis-console">
+    <div className="analysis-console" id="scan">
       <section className="intake-panel">
         <div className="panel-kicker">
           <span>01</span>
-          <p>REPOSITORY INTAKE</p>
+          <p>CHOOSE WHAT TO SCAN</p>
         </div>
 
         <div className="mode-switch" aria-label="Repository source">
@@ -204,15 +204,31 @@ export function AnalysisConsole() {
         </div>
 
         {mode === "demo" ? (
-          <div className="demo-repo-card">
-            <div>
-              <p className="repo-name">InvoicePilot</p>
-              <p>
-                Synthetic invoice SaaS · 19 source files · 8 planted findings
-              </p>
+          <>
+            <div className="demo-repo-card">
+              <div>
+                <p className="repo-name">InvoicePilot</p>
+                <p>
+                  Synthetic invoice SaaS · 19 source files · 8 planted findings
+                </p>
+              </div>
+              <span>READY TO SCAN</span>
             </div>
-            <span>GROUND TRUTH</span>
-          </div>
+            <ol className="scan-checklist" aria-label="How to run the demo">
+              <li>
+                <span>1</span>
+                InvoicePilot is already selected.
+              </li>
+              <li>
+                <span>2</span>
+                Confirm authorization below.
+              </li>
+              <li>
+                <span>3</span>
+                Press the green scan button.
+              </li>
+            </ol>
+          </>
         ) : (
           <div className="upload-fields">
             <label>
@@ -262,7 +278,13 @@ export function AnalysisConsole() {
           disabled={state === "running" || state === "reading"}
         >
           <span>{statusText(state)}</span>
-          <strong>{state === "running" ? "Working…" : "Run full security loop"}</strong>
+          <strong>
+            {state === "running"
+              ? "Hunting, patching, re-testing…"
+              : mode === "demo"
+                ? "Scan InvoicePilot → patch → re-test"
+                : "Run full security loop"}
+          </strong>
           <span aria-hidden="true">↘</span>
         </button>
 
@@ -301,18 +323,28 @@ export function AnalysisConsole() {
           </div>
           <div>
             <span>03</span>
-            <p>Evidence reducer</p>
+            <p>Four hunts</p>
             <strong>—</strong>
           </div>
           <div>
             <span>04</span>
-            <p>Parallel hunts</p>
+            <p>Human stakes</p>
+            <strong>—</strong>
+          </div>
+          <div>
+            <span>05</span>
+            <p>Focused patches</p>
+            <strong>—</strong>
+          </div>
+          <div>
+            <span>06</span>
+            <p>Re-tests</p>
             <strong>—</strong>
           </div>
         </div>
 
         <div className="empty-run">
-          <span>DB—M3</span>
+          <span>DB—READY</span>
           <p>
             Confirm ownership and run InvoicePilot to generate the complete
             report, eight isolated patches, and eight green re-tests.
