@@ -380,3 +380,250 @@ Official references:
   - `/og.png` returns the final campaign artwork with HTTP 200;
   - `/api/analyze` returns schema `1.0.0`, 8 findings, 8 generated and applied
     patches, 8 passed re-tests, 0 failures, and preserves the original source.
+
+### 15:04 CDT — Public fixture exposure removed and hero focus corrected
+
+- Removed the private experiment from the public product narrative, navigation,
+  calls to action, scanner intake, report surface, README quickstart, and
+  production API capability response.
+- Changed the public `/analyze` experience to accept only owner-supplied source.
+  The deterministic report, demo API path, and owned-staging verifier now
+  require `DEADBOLT_INTERNAL_DEMO=1`; with the production default they return
+  404 and advertise `demoAvailable: false`.
+- Removed the public live-staging panel and its hard-coded synthetic target from
+  the client bundle while preserving the defensive verifier as an explicitly
+  private development capability.
+- Edited the campaign artwork to narrow and sharpen the flashlight cone, place
+  its brightest hotspot directly on the bug, reduce haze, and replace the
+  malformed symbol with a clean symmetrical six-legged red bug.
+- Validation passed:
+  - no private fixture name or prior sample marketing copy remains in public
+    application pages, components, README content, or built HTML/RSC/JS;
+  - lint and strict type checking pass;
+  - core, report, and live-verifier contracts pass;
+  - the production build succeeds;
+  - the built `/demo` page has status 404, and both internal API paths return
+    404 while the internal flag is absent.
+
+### 15:15 CDT — Flashlight beam and hero resolution corrected
+
+- Replaced the narrow neon ray with a physically readable flashlight cone:
+  one filled beam widening from the lens into a broad circular pool centered
+  directly on the red bug, with the light terminating at the target.
+- Removed the laser-like center line and parallel rails while preserving the
+  wordmark, tagline, status label, code graph, bug, arrow, and verified shield.
+- Added a dedicated 1730×909 `public/hero.png` for the homepage and retained a
+  separate 1200×630 `public/og.png` for link previews, avoiding unnecessary
+  hero upscaling from the smaller social asset.
+- Lint, strict type checking, and the complete production build pass.
+
+### 15:20 CDT — Beam axis centered and background simplified
+
+- Rebuilt the flashlight cone and target pool around one shared optical axis:
+  lens center, cone center, spotlight center, and bug center are now collinear.
+- Removed the accidental stack of floating code-window/tab frames and replaced
+  it with a restrained flat source-code and data-flow field.
+- Added versioned homepage and social assets so the corrected artwork cannot be
+  masked by a cached copy of the earlier beam.
+- Lint, strict type checking, and the complete production build pass.
+
+### 15:24 CDT — Spotlight locked to the existing optical axis
+
+- Rejected the first alignment pass because the fixed cone still entered the
+  spotlight above and to the right of its visual center.
+- Kept the flashlight and cone fixed, then moved the spotlight and bug together
+  so a line through the lens and the midpoint of both beam edges bisects the
+  spotlight pool and bug.
+- Assigned a second unique production asset path to prevent the rejected
+  intermediate image from surviving in either the browser or image optimizer.
+- Lint, strict type checking, and the complete production build pass.
+
+### 15:32 CDT — Hero rebuilt around vertical symmetry
+
+- Rejected further repairs to the angled composition and generated a new hero
+  around an unambiguous vertical optical axis.
+- Positioned the flashlight directly above the bug and used a bilaterally
+  symmetric cone whose lens center, beam midpoint, spotlight center, and bug
+  center share the same X coordinate.
+- Removed a temporary generated alignment ruler without changing the finalized
+  geometry, and kept the background as a flat restrained code/data field with
+  no stacked tabs, windows, cards, or panels.
+- Added new homepage and social asset paths so no earlier angled artwork can be
+  returned by a browser or image-optimizer cache.
+- Lint and strict type checking pass. The first production-build attempt hit a
+  transient Google Fonts fetch failure; the immediate retry completed with all
+  application routes compiled successfully.
+
+### 18:00 CDT — Scan status made report-driven
+
+- Removed the unreachable hard-coded `8/8 VERIFIED` completion state from the
+  public analysis console.
+- A completed run now transitions directly from the running state to the
+  report, whose finding, patch, passed re-test, and failed re-test totals come
+  from the returned `AnalysisReport`.
+- Confirmed the hard-coded label and synthetic state are absent; lint, strict
+  type checking, report rendering verification, and the production build pass.
+
+### 18:17 CDT — Priority 3 uses affected-hunt re-analysis
+
+- Replaced the separate AI “verification verdict” with a fresh run of the same
+  affected hunt lens against the isolated patched clone. The patched source
+  goes through evidence reduction again before GPT-5.6 Sol receives the
+  original finding as a verification target.
+- A finding turns green only when the fresh affected-class hunt omits the
+  original root cause. Stable IDs are preferred; category and overlapping
+  evidence paths provide a conservative fallback. A missing hunt result or a
+  still-present root cause fails closed.
+- Kept the existing `retestStatus` and `retestEvidence` wire fields for schema
+  compatibility, but corrected product and report copy: live results say “hunt
+  re-analysis,” private fixture results say “deterministic source invariant,”
+  and both explicitly state that no executable tests ran.
+- Added verifier coverage for all three decision outcomes: root cause absent
+  becomes green, root cause still present remains red, and missing fresh-hunt
+  evidence remains red.
+- Validation passed:
+  - `npm run lint`;
+  - `npm run typecheck`;
+  - the core-loop, server-rendered report, and owned-staging contract verifiers;
+  - `npm run build` (a transient Google Fonts connection failure on the final
+    validation pass cleared on the immediate retry).
+- Live GPT-5.6 execution remains pending `OPENAI_API_KEY`; no live model result
+  is claimed by this implementation-only validation.
+
+### 20:05 CDT — Re-analysis now fails closed and preserves new findings
+
+- Replaced absence-by-omission with a target-specific verification contract:
+  every patched-code hunt must return one `absent`, `present`, or
+  `inconclusive` conclusion per original finding, with non-empty coverage and
+  patched-source evidence.
+- An empty result, missing conclusion, conflicting conclusions, missing
+  original evidence paths, incomplete coverage, an inconclusive verdict, or a
+  failed model call now remains red. None of those states can become green.
+- A green result now requires a complete `absent` conclusion, coverage of every
+  original evidence path, and citations limited to files the re-hunt reports
+  checking.
+- Re-analysis uses settled hunt calls so one failed lens becomes explicit red
+  evidence instead of silently clearing a target. Findings discovered during
+  the patched-code hunt are normalized as open, unpatched findings and included
+  in the top-level report so the overall report cannot claim an all-green loop.
+- Added regression checks for complete absence evidence, lingering roots,
+  missing passes, omitted target conclusions, schema rejection of empty model
+  output, and preservation of a newly discovered post-patch finding.
+- `npm run typecheck` and the core verifier pass. The verifier was invoked with
+  `node --import tsx` because the sandbox denied the `tsx` CLI's local IPC
+  socket.
+- Live GPT-5.6 behavior remains pending `OPENAI_API_KEY`; no live-model result
+  is marked verified.
+
+### 20:52 CDT — Patch application is line-targeted and replayable
+
+- Extended every live patch edit with an exact one-based `startLine` and
+  `endLine`. Application now requires one unambiguous path and validates the
+  exact expected whole-line source at that location; it never falls back to
+  first-occurrence replacement.
+- Rejects empty expected source, no-op replacements, invalid ranges, ambiguous
+  duplicate paths, overlapping edits, stale line content, and edits that
+  overlap a previously applied plan. A failed plan is atomic and leaves the
+  sandbox unchanged.
+- Multiple non-overlapping edits account for earlier line-count changes while
+  retaining original source coordinates. The fixture’s static patch templates
+  are accepted only when their expected source is unique and line-aligned.
+- Replaced the placeholder hunk marker with standard unified-diff headers and
+  numeric hunk ranges. A regression replays the produced diff with the system
+  `patch` utility and proves the resulting file exactly matches the in-memory
+  sandbox.
+- A proposed plan that cannot apply now remains `generated`/proposed with
+  `not_run` re-analysis; it is never labeled applied. The report explains when
+  no replayable diff is available.
+- Added focused regressions for a repeated snippet targeted at line three, a
+  wrong-line mismatch, a no-op rejection, sandbox immutability on failure, and
+  external unified-diff replay.
+- `npm run typecheck` and the core verifier pass.
+- Live GPT-5.6 patch generation remains pending `OPENAI_API_KEY`; no live-model
+  patch or re-analysis result is marked verified.
+
+### 21:04 CDT — Final local validation complete
+
+- Split browser upload path handling into a client-safe module after the first
+  production build correctly rejected a client import of the server-only
+  repository loader.
+- Replaced build-time Google Font downloads with locally hosted Geist and Geist
+  Mono assets through `next/font/local`, removing an external network
+  dependency from production builds.
+- Switched the project build script to Next.js 16’s documented
+  `next build --webpack` path because Turbopack’s CSS worker attempted to bind a
+  local port forbidden by the validation sandbox. The Webpack production build
+  compiled every route successfully.
+- Final validation passed:
+  - `npm run lint`;
+  - `npm run typecheck`;
+  - core analysis, server-rendered report, and bounded owned-staging contract
+    verifiers;
+  - `git diff --check`;
+  - `npm run build`.
+- No live OpenAI request or staging probe was performed. GPT-5.6 hunt quality,
+  live structured-output compliance, and live patched-code re-analysis remain
+  pending an API key.
+
+### 20:39 CDT — Finding IDs and browser intake are repository-safe
+
+- Added a deterministic pre-distillation ID boundary for the four independent
+  live hunt passes. The first requested ID is preserved; every cross-agent
+  collision receives a class-scoped canonical ID before patch plans, maps, or
+  re-analysis can use it.
+- Added schema enforcement for non-empty IDs, uniqueness within each hunt pass,
+  global uniqueness across passes and top-level findings, and the requirement
+  that every pass finding exists in the report index.
+- Newly discovered post-patch findings are also uniquified against every
+  original finding ID before entering the report.
+- Converted the browser intake to a real directory picker using
+  `webkitdirectory` plus the compatible `directory` attribute. The selected
+  root folder is stripped while nested repository paths are preserved, and
+  duplicate normalized paths are excluded instead of ambiguously selecting the
+  first basename.
+- Added regressions for cross-agent `DB-001` collisions, schema rejection of
+  duplicate report IDs, repository-relative nested paths, and the rendered
+  directory-picker attribute.
+- `npm run typecheck`, the core verifier, and the report renderer verifier pass.
+- Live GPT-5.6 behavior remains pending `OPENAI_API_KEY`; no live-model result
+  is marked verified.
+
+### 20:27 CDT — Zero-finding scans render a complete honest report
+
+- Replaced the `null` zero-finding branch with a dedicated report state that
+  shows zero findings, completed hunt coverage, files analyzed, no patches
+  needed, the unchanged-repository boundary, per-lens clean evidence, and the
+  raw structured contract.
+- The green “No vulnerabilities found in this scan” state is gated on every
+  requested hunt class completing with non-empty checked-file coverage. A
+  zero-finding report with incomplete coverage instead renders `SCAN
+  INCOMPLETE` and makes no clean claim.
+- The clean state explicitly says that no evidence-backed findings in the
+  bounded snapshot are not a guarantee that the code has no vulnerabilities.
+- Added a server-rendering regression proving the zero-finding report is
+  visible and contains neither patch-success nor full-loop-success copy.
+- `npm run typecheck` and the report renderer verifier pass.
+- Live GPT-5.6 behavior remains pending `OPENAI_API_KEY`; no live-model result
+  is marked verified.
+
+### 20:18 CDT — Result claims are conditional and the hero is claim-free
+
+- Replaced the homepage hero and active Open Graph image with edited,
+  production-sized assets that preserve the centered flashlight/bug
+  composition while removing the baked `BUILD COMPLETE · 8/8 GREEN` panel,
+  checked shield, arrow, and every other visual result claim.
+- Changed the homepage accessibility copy from “proves the fix” to the honest
+  statement that Deadbolt re-analyzes patched code to confirm a fix.
+- Report success styling, progress stages, patch-state headline, comparison
+  note, and footer now derive from actual patch and re-analysis status.
+  Proposed, unapplied, failed, and unrun states use explicit incomplete/red
+  language and never render `Focused fix applied`, a verified verdict badge, or
+  `FULL LOOP COMPLETE`.
+- Updated the README capability comparison to say patched-code re-analysis
+  instead of a verified fix.
+- Added report rendering regressions for all-passed, proposed/unapplied, and
+  applied-but-failed states.
+- `npm run typecheck` and the report renderer verifier pass. Both edited images
+  were visually inspected at their production dimensions.
+- Live GPT-5.6 behavior remains pending `OPENAI_API_KEY`; no live-model result
+  is marked verified.

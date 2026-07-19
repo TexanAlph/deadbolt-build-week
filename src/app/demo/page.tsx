@@ -1,20 +1,29 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { notFound } from "next/navigation";
 import { ReportExperience } from "@/components/report-experience";
 import { runFixtureAnalysis } from "@/lib/analysis/fixture-provider";
 import { loadDemoRepository } from "@/lib/analysis/repository";
 
 export const metadata: Metadata = {
-  title: "One-click InvoicePilot demo",
+  title: "Internal security fixture",
   description:
-    "Open Deadbolt’s complete, pre-run InvoicePilot hunt, patch, and re-test report.",
+    "A private deterministic fixture for Deadbolt development and validation.",
+  robots: {
+    index: false,
+    follow: false,
+  },
 };
 
 export default async function DemoPage() {
+  if (process.env.DEADBOLT_INTERNAL_DEMO !== "1") {
+    notFound();
+  }
+
   const repository = await loadDemoRepository();
   const report = runFixtureAnalysis(
     repository,
-    "db_demo_invoicepilot",
+    "db_internal_fixture",
     1482,
   );
 
@@ -35,16 +44,17 @@ export default async function DemoPage() {
 
       <section className="demo-intro">
         <div>
-          <p className="eyebrow">INVOICEPILOT · PRE-RUN REPORT</p>
+          <p className="eyebrow">INTERNAL FIXTURE · PRE-RUN REPORT</p>
           <h1>
             Eight risks in.
-            <span>Eight verified fixes out.</span>
+            <span>Eight source invariants green.</span>
           </h1>
         </div>
         <p>
           No signup, API key, GitHub admin, CodeQL, or CI required. This
           deterministic run preserves the full finding evidence, applies each
-          exact patch to an isolated clone, and proves the red → green change.
+          exact patch to an isolated clone, and checks deterministic source
+          invariants. It does not execute tests.
         </p>
       </section>
 

@@ -36,7 +36,7 @@ class DeadboltAnalysisProvider implements AnalysisProvider {
     }
 
     throw new AnalysisProviderUnavailableError(
-      "Live GPT-5.6 Sol analysis is not configured yet. Use the InvoicePilot demo or add OPENAI_API_KEY.",
+      "Live GPT-5.6 Sol analysis is not configured yet. Add OPENAI_API_KEY to enable source analysis.",
     );
   }
 }

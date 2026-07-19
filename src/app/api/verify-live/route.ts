@@ -42,6 +42,18 @@ function reserve(request: Request) {
 }
 
 export async function POST(request: Request) {
+  if (process.env.DEADBOLT_INTERNAL_DEMO !== "1") {
+    return response(
+      {
+        error: {
+          code: "verification_unavailable",
+          message: "The internal staging fixture is not enabled.",
+        },
+      },
+      404,
+    );
+  }
+
   if (!reserve(request)) {
     return response(
       {

@@ -52,11 +52,20 @@ export function reportVerdict(report: AnalysisReport) {
     passed === report.findings.length &&
     failed === 0
   ) {
+    if (report.engine.liveModel) {
+      return {
+        label: "PATCHED + RE-ANALYZED",
+        headline: `${report.findings.length} risks found. ${passed} original root causes cleared by fresh hunt re-analysis.`,
+        summary:
+          "Every patch was applied to an isolated repository clone, then the affected hunt lens ran again against the patched source. No executable tests were run.",
+      };
+    }
+
     return {
-      label: "PATCHED + VERIFIED",
-      headline: `${report.findings.length} risks found. ${passed} focused fixes re-tested green.`,
+      label: "PATCHED + INVARIANTS GREEN",
+      headline: `${report.findings.length} fixture risks found. ${passed} deterministic source invariants green.`,
       summary:
-        "Every patch was applied to an isolated repository clone, then checked against the original security invariant.",
+        "Every fixture patch was applied to an isolated repository clone, then checked with a deterministic source invariant. No executable tests were run.",
     };
   }
 

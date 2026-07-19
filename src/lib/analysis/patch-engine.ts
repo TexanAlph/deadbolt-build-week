@@ -5,8 +5,11 @@ import type {
 
 export interface PatchEdit {
   path: string;
+  startLine: number;
+  endLine: number;
   expected: string;
   replacement: string;
+  locationError?: string;
 }
 
 export interface PatchPlan {
@@ -22,23 +25,84 @@ export interface AppliedPatch {
   error: string | null;
 }
 
-function renderDiff(edit: PatchEdit) {
-  const removed = edit.expected
-    .split("\n")
-    .map((line) => `-${line}`)
-    .join("\n");
-  const added = edit.replacement
-    .split("\n")
-    .map((line) => `+${line}`)
-    .join("\n");
+interface PatchEditTemplate {
+  path: string;
+  expected: string;
+  replacement: string;
+}
+
+interface PatchPlanTemplate {
+  findingId: string;
+  summary: string;
+  edits: PatchEditTemplate[];
+}
+
+interface DiffHunk {
+  oldStart: number;
+  oldLines: string[];
+  newLines: string[];
+}
+
+interface AppliedLineDelta {
+  path: string;
+  startLine: number;
+  endLine: number;
+  delta: number;
+}
+
+function lineCount(lines: string[]) {
+  return lines.length;
+}
+
+function hunkRange(start: number, count: number) {
+  return `${start},${count}`;
+}
+
+function renderUnifiedDiff(path: string, hunks: DiffHunk[]) {
+  let planDelta = 0;
+  const renderedHunks = [...hunks]
+    .sort((a, b) => a.oldStart - b.oldStart)
+    .map((hunk) => {
+      const oldCount = lineCount(hunk.oldLines);
+      const newCount = lineCount(hunk.newLines);
+      const newStart = hunk.oldStart + planDelta;
+      planDelta += newCount - oldCount;
+
+      return [
+        `@@ -${hunkRange(hunk.oldStart, oldCount)} +${hunkRange(newStart, newCount)} @@`,
+        ...hunk.oldLines.map((line) => `-${line}`),
+        ...hunk.newLines.map((line) => `+${line}`),
+      ].join("\n");
+    });
 
   return [
-    `--- a/${edit.path}`,
-    `+++ b/${edit.path}`,
-    "@@ focused security patch @@",
-    removed,
-    added,
+    `--- a/${path}`,
+    `+++ b/${path}`,
+    ...renderedHunks,
+    "",
   ].join("\n");
+}
+
+function rangesOverlap(
+  left: Pick<PatchEdit, "startLine" | "endLine">,
+  right: Pick<PatchEdit, "startLine" | "endLine">,
+) {
+  return left.startLine <= right.endLine && right.startLine <= left.endLine;
+}
+
+function adjustedStartLine(
+  edit: PatchEdit,
+  committedDeltas: AppliedLineDelta[],
+) {
+  return (
+    edit.startLine +
+    committedDeltas
+      .filter(
+        (candidate) =>
+          candidate.path === edit.path && candidate.endLine < edit.startLine,
+      )
+      .reduce((total, candidate) => total + candidate.delta, 0)
+  );
 }
 
 export function applyPatchPlans(
@@ -50,37 +114,163 @@ export function applyPatchPlans(
     files: source.files.map((file) => ({ ...file })),
   };
   const results: AppliedPatch[] = [];
+  const committedDeltas: AppliedLineDelta[] = [];
 
   for (const plan of plans) {
     const staged = sandbox.files.map((file) => ({ ...file }));
-    const diffs: string[] = [];
+    const validatedEdits: Array<{
+      edit: PatchEdit;
+      adjustedStart: number;
+      oldLines: string[];
+      newLines: string[];
+    }> = [];
     let error: string | null = null;
 
+    if (plan.edits.length === 0) {
+      error = "Patch plan contains no source edits.";
+    }
+
     for (const edit of plan.edits) {
-      const file = staged.find((candidate) => candidate.path === edit.path);
-
-      if (!file) {
-        error = `Patch target does not exist: ${edit.path}`;
+      if (error) {
         break;
       }
 
-      if (!file.content.includes(edit.expected)) {
-        error = `Expected source no longer matches: ${edit.path}`;
+      if (edit.locationError) {
+        error = edit.locationError;
         break;
       }
 
-      file.content = file.content.replace(edit.expected, edit.replacement);
-      diffs.push(renderDiff(edit));
+      if (edit.expected.length === 0) {
+        error = `Patch expected source is empty: ${edit.path}`;
+        break;
+      }
+
+      if (edit.expected === edit.replacement) {
+        error = `Patch makes no source change: ${edit.path}:${edit.startLine}-${edit.endLine}`;
+        break;
+      }
+
+      if (
+        !Number.isInteger(edit.startLine) ||
+        !Number.isInteger(edit.endLine) ||
+        edit.startLine < 1 ||
+        edit.endLine < edit.startLine
+      ) {
+        error = `Patch has an invalid line range: ${edit.path}:${edit.startLine}-${edit.endLine}`;
+        break;
+      }
+
+      const matchingFiles = staged.filter(
+        (candidate) => candidate.path === edit.path,
+      );
+      if (matchingFiles.length !== 1) {
+        error =
+          matchingFiles.length === 0
+            ? `Patch target does not exist: ${edit.path}`
+            : `Patch target path is ambiguous: ${edit.path}`;
+        break;
+      }
+      const [file] = matchingFiles;
+
+      const previousOverlap = committedDeltas.find(
+        (candidate) =>
+          candidate.path === edit.path && rangesOverlap(candidate, edit),
+      );
+      if (previousOverlap) {
+        error = `Patch overlaps an earlier applied edit: ${edit.path}:${edit.startLine}-${edit.endLine}`;
+        break;
+      }
+
+      const planOverlap = validatedEdits.find(
+        (candidate) =>
+          candidate.edit.path === edit.path &&
+          rangesOverlap(candidate.edit, edit),
+      );
+      if (planOverlap) {
+        error = `Patch plan contains overlapping edits: ${edit.path}:${edit.startLine}-${edit.endLine}`;
+        break;
+      }
+
+      const oldLines = edit.expected.split("\n");
+      const expectedRangeLength = edit.endLine - edit.startLine + 1;
+      if (oldLines.length !== expectedRangeLength) {
+        error = `Patch line range does not match its expected source: ${edit.path}:${edit.startLine}-${edit.endLine}`;
+        break;
+      }
+
+      const adjustedStart = adjustedStartLine(edit, committedDeltas);
+      const currentLines = file.content.split("\n");
+      const actual = currentLines
+        .slice(adjustedStart - 1, adjustedStart - 1 + oldLines.length)
+        .join("\n");
+      if (actual !== edit.expected) {
+        error = `Expected source does not match the targeted line range: ${edit.path}:${edit.startLine}-${edit.endLine}`;
+        break;
+      }
+
+      validatedEdits.push({
+        edit,
+        adjustedStart,
+        oldLines,
+        newLines:
+          edit.replacement.length === 0 ? [] : edit.replacement.split("\n"),
+      });
     }
 
     if (!error) {
+      for (const item of [...validatedEdits].sort(
+        (a, b) => b.adjustedStart - a.adjustedStart,
+      )) {
+        const file = staged.find(
+          (candidate) => candidate.path === item.edit.path,
+        );
+        if (!file) {
+          error = `Patch target disappeared during staging: ${item.edit.path}`;
+          break;
+        }
+        const lines = file.content.split("\n");
+        lines.splice(
+          item.adjustedStart - 1,
+          item.oldLines.length,
+          ...item.newLines,
+        );
+        file.content = lines.join("\n");
+      }
+    }
+
+    const diff = error
+      ? ""
+      : [...new Set(validatedEdits.map((item) => item.edit.path))]
+          .map((path) =>
+            renderUnifiedDiff(
+              path,
+              validatedEdits
+                .filter((item) => item.edit.path === path)
+                .map((item) => ({
+                  oldStart: item.edit.startLine,
+                  oldLines: item.oldLines,
+                  newLines: item.newLines,
+                })),
+            ),
+          )
+          .join("\n");
+
+    if (!error) {
       sandbox.files = staged;
+      committedDeltas.push(
+        ...validatedEdits.map((item) => ({
+          path: item.edit.path,
+          startLine: item.edit.startLine,
+          endLine: item.edit.endLine,
+          delta: item.newLines.length - item.oldLines.length,
+        })),
+      );
     }
 
     results.push({
       findingId: plan.findingId,
       applied: error === null,
-      diff: diffs.join("\n\n"),
+      diff,
       error,
     });
   }
@@ -88,11 +278,71 @@ export function applyPatchPlans(
   return { sandbox, results };
 }
 
+function locatePatchPlans(
+  snapshot: RepositorySnapshot,
+  templates: PatchPlanTemplate[],
+): PatchPlan[] {
+  return templates.map((plan) => ({
+    ...plan,
+    edits: plan.edits.map((edit): PatchEdit => {
+      const matchingFiles = snapshot.files.filter(
+        (file) => file.path === edit.path,
+      );
+      if (matchingFiles.length !== 1) {
+        return {
+          ...edit,
+          startLine: 0,
+          endLine: 0,
+          locationError: `Fixture patch target is ${
+            matchingFiles.length === 0 ? "missing" : "ambiguous"
+          }: ${edit.path}`,
+        };
+      }
+
+      const [file] = matchingFiles;
+      const firstIndex = file.content.indexOf(edit.expected);
+      const lastIndex = file.content.lastIndexOf(edit.expected);
+      if (firstIndex < 0 || firstIndex !== lastIndex) {
+        return {
+          ...edit,
+          startLine: 0,
+          endLine: 0,
+          locationError:
+            firstIndex < 0
+              ? `Fixture patch source is missing: ${edit.path}`
+              : `Fixture patch source is not unique: ${edit.path}`,
+        };
+      }
+
+      const afterIndex = firstIndex + edit.expected.length;
+      const startsAtLineBoundary =
+        firstIndex === 0 || file.content[firstIndex - 1] === "\n";
+      const endsAtLineBoundary =
+        afterIndex === file.content.length || file.content[afterIndex] === "\n";
+      if (!startsAtLineBoundary || !endsAtLineBoundary) {
+        return {
+          ...edit,
+          startLine: 0,
+          endLine: 0,
+          locationError: `Fixture patch source is not line-aligned: ${edit.path}`,
+        };
+      }
+
+      const startLine = file.content.slice(0, firstIndex).split("\n").length;
+      return {
+        ...edit,
+        startLine,
+        endLine: startLine + edit.expected.split("\n").length - 1,
+      };
+    }),
+  }));
+}
+
 function fileContent(snapshot: RepositorySnapshot, path: string) {
   return snapshot.files.find((file) => file.path === path)?.content ?? "";
 }
 
-const invoicePilotPatchPlans: PatchPlan[] = [
+const invoicePilotPatchPlans: PatchPlanTemplate[] = [
   {
     findingId: "IP-001",
     summary: "Keep provider credentials on the server side.",
@@ -436,7 +686,7 @@ export async function POST(request: Request) {
   },
 ];
 
-const fixtureRetests: Record<
+const fixtureInvariantChecks: Record<
   string,
   (snapshot: RepositorySnapshot) => { passed: boolean; evidence: string }
 > = {
@@ -509,7 +759,7 @@ const fixtureRetests: Record<
     return {
       passed,
       evidence: passed
-        ? "API CORS is limited to the owned InvoicePilot origin and varies on Origin."
+        ? "API CORS is limited to the owned application origin and varies on Origin."
         : "A wildcard or non-varying API CORS rule remains.",
     };
   },
@@ -568,7 +818,7 @@ export function remediateInvoicePilot(
 ) {
   const { sandbox, results } = applyPatchPlans(
     snapshot,
-    invoicePilotPatchPlans,
+    locatePatchPlans(snapshot, invoicePilotPatchPlans),
   );
   const byFinding = new Map(
     results.map((result) => [result.findingId, result]),
@@ -576,8 +826,8 @@ export function remediateInvoicePilot(
 
   const remediatedFindings = findings.map((finding): Finding => {
     const patch = byFinding.get(finding.id);
-    const retest = patch?.applied
-      ? fixtureRetests[finding.id]?.(sandbox)
+    const invariantCheck = patch?.applied
+      ? fixtureInvariantChecks[finding.id]?.(sandbox)
       : undefined;
 
     return {
@@ -585,16 +835,20 @@ export function remediateInvoicePilot(
       patchDiff: patch?.diff || null,
       patchStatus: patch?.applied
         ? "applied_to_sandbox"
-        : patch?.diff
+        : patch
           ? "generated"
           : "not_generated",
-      retestStatus: retest
-        ? retest.passed
+      retestStatus: invariantCheck
+        ? invariantCheck.passed
           ? "passed"
           : "failed"
         : "not_run",
       retestEvidence:
-        retest?.evidence ?? patch?.error ?? "No patch was generated.",
+        (invariantCheck
+          ? `Deterministic fixture source-invariant check (no executable tests): ${invariantCheck.evidence}`
+          : undefined) ??
+        patch?.error ??
+        "No patch was generated.",
     };
   });
 
@@ -604,7 +858,7 @@ export function remediateInvoicePilot(
     summary: {
       sandboxed: true as const,
       originalRepositoryUnchanged: true as const,
-      patchesGenerated: results.filter((result) => result.diff).length,
+      patchesGenerated: results.length,
       patchesApplied: results.filter((result) => result.applied).length,
       retestsPassed: remediatedFindings.filter(
         (finding) => finding.retestStatus === "passed",

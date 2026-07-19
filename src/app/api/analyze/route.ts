@@ -18,6 +18,10 @@ const MAX_RUNS_PER_WINDOW = 4;
 const requestWindows = new Map<string, { count: number; resetAt: number }>();
 let activeRuns = 0;
 
+function internalDemoEnabled() {
+  return process.env.DEADBOLT_INTERNAL_DEMO === "1";
+}
+
 function response(body: unknown, status = 200) {
   return Response.json(body, {
     status,
@@ -62,7 +66,7 @@ export async function GET() {
       process.env.DEADBOLT_ANALYSIS_MODE !== "fixture"
         ? "openai"
         : "fixture",
-    demoAvailable: true,
+    demoAvailable: internalDemoEnabled(),
     ownershipConfirmationRequired: true,
   });
 }
@@ -108,6 +112,19 @@ export async function POST(request: Request) {
   activeRuns += 1;
   try {
     const input = AnalyzeRequestSchema.parse(await request.json());
+
+    if (input.source === "demo" && !internalDemoEnabled()) {
+      return response(
+        {
+          error: {
+            code: "demo_unavailable",
+            message: "The internal test fixture is not enabled.",
+          },
+        },
+        404,
+      );
+    }
+
     const repository =
       input.source === "demo"
         ? await loadDemoRepository()

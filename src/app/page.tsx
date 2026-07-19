@@ -24,28 +24,28 @@ const pipeline = [
   },
   {
     number: "04",
-    verb: "PROVE",
-    title: "Re-test to green",
+    verb: "RECHECK",
+    title: "Re-analyze the patch",
     description:
-      "Re-run the original security invariant and show exactly what changed from red to green.",
+      "Run the affected hunt lens again against the patched clone and show whether the original root cause remains.",
   },
 ];
 
 const scanSteps = [
   {
     number: "01",
-    title: "Open the scanner",
-    detail: "InvoicePilot is already selected and ready.",
+    title: "Add your source",
+    detail: "Choose the application files you want Deadbolt to inspect.",
   },
   {
     number: "02",
     title: "Confirm authorization",
-    detail: "The sample is synthetic and owned by this project.",
+    detail: "Only audit code you own or are explicitly allowed to test.",
   },
   {
     number: "03",
     title: "Run the full loop",
-    detail: "Review 8 findings, 8 patches, and 8 green re-tests.",
+    detail: "Review evidence, focused patches, and affected-hunt re-analysis.",
   },
 ];
 
@@ -63,7 +63,7 @@ export default function Home() {
 
         <nav className="home-nav" aria-label="Main navigation">
           <a href="#how">HOW IT WORKS</a>
-          <a href="/demo">COMPLETED REPORT</a>
+          <a href="/analyze#scan">AUDIT YOUR SOURCE</a>
           <a
             href="https://github.com/TexanAlph/deadbolt-build-week"
             target="_blank"
@@ -75,23 +75,24 @@ export default function Home() {
 
         <div className="header-status" aria-label="Build status">
           <span className="status-dot" aria-hidden="true" />
-          <span>8/8 VERIFIED</span>
+          <span>ENGINE READY</span>
         </div>
       </header>
 
       <main id="top">
         <section className="campaign-hero" aria-labelledby="campaign-heading">
           <h1 className="sr-only" id="campaign-heading">
-            Deadbolt finds security bugs, patches them, and proves the fix
+            Deadbolt finds security bugs, patches them, and re-analyzes the
+            patched code to confirm the fix
           </h1>
 
           <div className="campaign-frame">
             <Image
               className="campaign-art"
-              src="/og.png"
-              alt="A focused beam reveals a security bug in source code, then points to a verified green shield."
-              width={1200}
-              height={630}
+              src="/hero-vertical-axis.png"
+              alt="A perfectly centered vertical flashlight beam illuminates a red security bug against a dark source-code graph."
+              width={1738}
+              height={905}
               sizes="(max-width: 720px) 100vw, 1400px"
               preload
             />
@@ -103,25 +104,25 @@ export default function Home() {
 
           <div className="scan-command">
             <div className="scan-command-title">
-              <p>READY-TO-SCAN SAMPLE</p>
-              <strong>InvoicePilot</strong>
-              <span>Synthetic invoice SaaS with known ground truth</span>
+              <p>START A DEFENSIVE AUDIT</p>
+              <strong>Your repository</strong>
+              <span>Source-only analysis for code you own</span>
             </div>
 
-            <div className="scan-command-metrics" aria-label="Sample details">
+            <div className="scan-command-metrics" aria-label="Audit capabilities">
               <span>
-                <strong>19</strong> SOURCE FILES
+                <strong>4</strong> HUNT PASSES
               </span>
               <span>
-                <strong>8</strong> PLANTED RISKS
+                <strong>EXACT</strong> PATCHES
               </span>
               <span>
-                <strong>~20s</strong> TO RUN
+                <strong>FRESH</strong> RE-ANALYSIS
               </span>
             </div>
 
             <a className="primary-action scan-now" href="/analyze#scan">
-              Scan InvoicePilot now
+              Audit your source
               <span aria-hidden="true">↘</span>
             </a>
           </div>
@@ -141,14 +142,14 @@ export default function Home() {
             <p>
               Deadbolt gives solo builders the security loop enterprise teams
               already have: understand the application, find what matters,
-              write the fix, and prove it worked.
+              write the fix, and show whether the same hunt still finds it.
             </p>
             <div className="story-actions">
-              <a className="text-action" href="/demo">
-                View the completed report <span aria-hidden="true">→</span>
+              <a className="text-action" href="/analyze#scan">
+                Start a defensive audit <span aria-hidden="true">→</span>
               </a>
-              <a className="text-action muted" href="/analyze#scan">
-                Audit my source <span aria-hidden="true">→</span>
+              <a className="text-action muted" href="#how">
+                See how the loop works <span aria-hidden="true">↓</span>
               </a>
             </div>
             <p className="home-ownership">
@@ -171,10 +172,10 @@ export default function Home() {
 
         <section className="scan-guide" id="try">
           <div className="scan-guide-heading">
-            <p className="eyebrow">TRY THE REAL LOOP</p>
+            <p className="eyebrow">RUN THE REAL LOOP</p>
             <h2>
-              Don&apos;t watch a mockup.
-              <span>Scan the vulnerable app yourself.</span>
+              Bring the code.
+              <span>Deadbolt brings the security loop.</span>
             </h2>
           </div>
 
@@ -196,15 +197,15 @@ export default function Home() {
                 <span>REPRESENTATIVE FINDING</span>
                 <strong>CRITICAL</strong>
               </div>
-              <p className="evidence-code">IP-008 · AUTH / IDOR</p>
+              <p className="evidence-code">AUTH-008 · ACCESS CONTROL</p>
               <h3>
-                One signed-in customer can read another customer&apos;s
-                invoice.
+                One signed-in user can read another user&apos;s private record.
               </h3>
               <p>
                 The route checks that a user exists, but never proves the
-                invoice belongs to that user. Deadbolt follows the trust
-                boundary across the route and data access—not just one line.
+                requested record belongs to that user. Deadbolt follows the
+                trust boundary across the route and data access—not just one
+                line.
               </p>
               <div className="evidence-transition" aria-label="Fix result">
                 <span>
@@ -218,7 +219,7 @@ export default function Home() {
                 </span>
               </div>
               <a className="primary-action" href="/analyze#scan">
-                Run this hunt
+                Audit your source
                 <span aria-hidden="true">↘</span>
               </a>
             </div>
@@ -233,7 +234,7 @@ export default function Home() {
             </div>
             <p>
               Every result connects evidence, human impact, a focused patch,
-              and a finding-specific regression check.
+              and a fresh run of the affected hunt lens.
             </p>
           </div>
 
@@ -274,8 +275,8 @@ export default function Home() {
 
       <footer className="home-footer">
         <p>DEADBOLT · OPENAI BUILD WEEK 2026</p>
-        <a href="/analyze#scan">SCAN INVOICEPILOT ↘</a>
-        <p>FULL LOOP LIVE · 8/8 GREEN</p>
+        <a href="/analyze#scan">AUDIT YOUR SOURCE ↘</a>
+        <p>HUNT · PATCH · RE-ANALYZE</p>
       </footer>
     </div>
   );

@@ -91,7 +91,7 @@ export const ThreatModelSchema = z
 
 export const FindingSchema = z
   .object({
-    id: z.string(),
+    id: z.string().trim().min(1),
     huntClass: z.enum(huntClasses),
     category: z.string(),
     severity: z.enum(severities),
@@ -114,16 +114,40 @@ export const FindingSchema = z
   })
   .strict();
 
-export const HuntPassSchema = z
+export const VerificationResultSchema = z
   .object({
-    agentId: z.string(),
-    huntClass: z.enum(huntClasses),
-    summary: z.string(),
-    findings: z.array(FindingSchema),
-    checkedFiles: z.array(z.string()),
-    noFindingReason: z.string().nullable(),
+    findingId: z.string().trim().min(1),
+    verdict: z.enum(["absent", "present", "inconclusive"]),
+    summary: z.string().trim().min(1),
+    checkedFiles: z.array(z.string().trim().min(1)).min(1),
+    evidence: z.array(EvidenceSchema).min(1),
   })
   .strict();
+
+export const HuntPassSchema = z
+  .object({
+    agentId: z.string().trim().min(1),
+    huntClass: z.enum(huntClasses),
+    summary: z.string().trim().min(1),
+    findings: z.array(FindingSchema),
+    checkedFiles: z.array(z.string().trim().min(1)).min(1),
+    noFindingReason: z.string().trim().min(1).nullable(),
+    verificationResults: z.array(VerificationResultSchema),
+  })
+  .strict()
+  .superRefine((pass, context) => {
+    const seen = new Set<string>();
+    pass.findings.forEach((finding, index) => {
+      if (seen.has(finding.id)) {
+        context.addIssue({
+          code: "custom",
+          path: ["findings", index, "id"],
+          message: `Finding ID "${finding.id}" must be unique within its hunt pass.`,
+        });
+      }
+      seen.add(finding.id);
+    });
+  });
 
 export const EvidenceGroupSchema = z
   .object({
@@ -201,7 +225,41 @@ export const AnalysisReportSchema = z
       .strict(),
     usage: UsageSchema,
   })
-  .strict();
+  .strict()
+  .superRefine((report, context) => {
+    const reportIds = new Set<string>();
+    report.findings.forEach((finding, index) => {
+      if (reportIds.has(finding.id)) {
+        context.addIssue({
+          code: "custom",
+          path: ["findings", index, "id"],
+          message: `Finding ID "${finding.id}" must be globally unique.`,
+        });
+      }
+      reportIds.add(finding.id);
+    });
+
+    const passIds = new Set<string>();
+    report.passes.forEach((pass, passIndex) => {
+      pass.findings.forEach((finding, findingIndex) => {
+        if (passIds.has(finding.id)) {
+          context.addIssue({
+            code: "custom",
+            path: ["passes", passIndex, "findings", findingIndex, "id"],
+            message: `Finding ID "${finding.id}" must be globally unique across hunt passes.`,
+          });
+        }
+        if (!reportIds.has(finding.id)) {
+          context.addIssue({
+            code: "custom",
+            path: ["passes", passIndex, "findings", findingIndex, "id"],
+            message: `Finding ID "${finding.id}" is missing from the report finding index.`,
+          });
+        }
+        passIds.add(finding.id);
+      });
+    });
+  });
 
 export type AnalyzeRequest = z.infer<typeof AnalyzeRequestSchema>;
 export type AnalysisReport = z.infer<typeof AnalysisReportSchema>;
@@ -214,3 +272,4 @@ export type RepositoryFile = z.infer<typeof RepositoryFileSchema>;
 export type RepositorySnapshot = z.infer<typeof RepositorySnapshotSchema>;
 export type ThreatModel = z.infer<typeof ThreatModelSchema>;
 export type Usage = z.infer<typeof UsageSchema>;
+export type VerificationResult = z.infer<typeof VerificationResultSchema>;

@@ -194,7 +194,7 @@ const findings: Finding[] = [
     category: "permissive-cors",
     severity: "high",
     confidence: 0.99,
-    title: "Every website is allowed to read InvoicePilot API responses",
+    title: "Every website is allowed to read sensitive API responses",
     file: "next.config.ts",
     line: 10,
     evidence: [
@@ -214,7 +214,7 @@ const findings: Finding[] = [
       ),
     ],
     plainEnglish:
-      "Any website can ask a visitor’s browser to read InvoicePilot API data. The current invoice API is already anonymous, so this widens exposure immediately.",
+      "Any website can ask a visitor’s browser to read sensitive API data. The current records API is already anonymous, so this widens exposure immediately.",
     exploitInPlainTerms:
       "A page on an unrelated origin makes a browser request to the invoice API and is allowed to read the response.",
     remediationPlan:
@@ -313,7 +313,7 @@ const findings: Finding[] = [
 
 const threatModel: ThreatModel = {
   summary:
-    "InvoicePilot is a synthetic multi-tenant invoice dashboard with public Next.js routes, a decorative login cookie, in-memory invoice data, and a Supabase-shaped schema that grants broad database access.",
+    "The internal fixture is a synthetic multi-tenant dashboard with public Next.js routes, a decorative login cookie, in-memory records, and a Supabase-shaped schema that grants broad database access.",
   architecture: [
     "Next.js App Router pages and Route Handlers",
     "Browser-rendered dashboard with a client-side provider status component",
@@ -413,6 +413,7 @@ function buildPasses(): HuntPass[] {
         huntClass === "injection"
           ? "User-controlled values terminate in numeric comparisons or JSON strings; no SQL, shell, template, filesystem, redirect, or deserialization sink is present."
           : null,
+      verificationResults: [],
     };
   });
 }
@@ -444,7 +445,7 @@ export function runFixtureAnalysis(
     elapsedMs,
     engine: {
       provider: "fixture",
-      model: "deterministic-invoicepilot-ground-truth",
+      model: "deterministic-private-fixture-ground-truth",
       liveModel: false,
       reasoningEffort: "fixture",
       ptcStatus: "fixture_simulated",

@@ -177,7 +177,7 @@ export async function loadDemoRepository(): Promise<PreparedRepository> {
   );
 
   return prepareRepository({
-    name: "InvoicePilot",
+    name: "Internal Security Fixture",
     source: "demo",
     files,
   });

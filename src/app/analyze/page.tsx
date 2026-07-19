@@ -26,16 +26,17 @@ export default function AnalyzePage() {
 
       <section className="analysis-intro">
         <div>
-          <p className="eyebrow">INVOICEPILOT IS READY TO SCAN</p>
+          <p className="eyebrow">SOURCE-ONLY · SELF-AUDIT</p>
           <h1>
             Find the bug.
             <span>Fix it. Prove it.</span>
           </h1>
         </div>
         <p>
-          Start with the synthetic InvoicePilot sample: confirm the ownership
-          box, press the green scan button, and Deadbolt will map, hunt, patch,
-          and re-test all eight known risks. Or switch to your own source files.
+          Add source files from an application you own, confirm authorization,
+          and Deadbolt will map the trust boundaries, run four focused hunts,
+          prepare reviewable patches, and rerun each affected hunt against the
+          patched clone.
         </p>
       </section>
 

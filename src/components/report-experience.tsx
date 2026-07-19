@@ -1,7 +1,6 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { LiveVerificationPanel } from "@/components/live-verification-panel";
 import type { AnalysisReport } from "@/lib/analysis/schemas";
 import {
   chooseLeadFinding,
@@ -38,6 +37,49 @@ export function ReportExperience({
     [report.findings],
   );
   const verdict = useMemo(() => reportVerdict(report), [report]);
+  const isLiveReanalysis = report.engine.liveModel;
+  const openAfterVerification = report.findings.filter(
+    (finding) => finding.retestStatus !== "passed",
+  ).length;
+  const allFindingsPassed =
+    report.findings.length > 0 && openAfterVerification === 0;
+  const allPatchesApplied =
+    report.findings.length > 0 &&
+    report.findings.every(
+      (finding) => finding.patchStatus === "applied_to_sandbox",
+    );
+  const coverageComplete = report.coverage.requestedClasses.every((huntClass) =>
+    report.coverage.completedClasses.includes(huntClass),
+  );
+  const verificationCopy = isLiveReanalysis
+    ? {
+        engine: "LIVE · GPT-5.6 SOL · HUNT RE-ANALYSIS",
+        passedTotal: "cleared by re-analysis",
+        open: "Open after re-analysis",
+        stage: "Re-analysis",
+        passedShort: "cleared",
+        findingPassed: "✓ ROOT CAUSE CLEARED",
+        passed: "Hunt re-analysis passed",
+        incomplete: "Hunt re-analysis incomplete",
+        proof: "HUNT RE-ANALYSIS",
+        missing: "No hunt re-analysis evidence was returned.",
+        comparison:
+          "The source repository was never changed. Deadbolt applied this exact diff to an isolated in-memory clone, then ran the same affected hunt lens again. No executable tests were run.",
+      }
+    : {
+        engine: "DETERMINISTIC FIXTURE · SOURCE INVARIANTS",
+        passedTotal: "fixture invariants green",
+        open: "Open after invariant check",
+        stage: "Invariant check",
+        passedShort: "green",
+        findingPassed: "✓ FIXTURE INVARIANT GREEN",
+        passed: "Fixture invariant passed",
+        incomplete: "Fixture invariant incomplete",
+        proof: "INVARIANT CHECK",
+        missing: "No deterministic invariant evidence was returned.",
+        comparison:
+          "The source repository was never changed. Deadbolt applied this exact diff to an isolated in-memory clone, then evaluated a deterministic source invariant. No executable tests were run.",
+      };
   const filteredFindings = useMemo(
     () =>
       filter === "all"
@@ -49,6 +91,51 @@ export function ReportExperience({
     report.findings.find((finding) => finding.id === selectedFindingId) ??
     filteredFindings[0] ??
     report.findings[0];
+  const selectedPatchApplied =
+    selectedFinding?.patchStatus === "applied_to_sandbox";
+  const selectedRetestPassed = selectedFinding?.retestStatus === "passed";
+  const selectedPatchState = !selectedFinding
+    ? null
+    : selectedRetestPassed
+      ? {
+          label: "AFTER PATCH",
+          headline: "Focused fix applied",
+          status: verificationCopy.passed,
+          className: "passed",
+        }
+      : selectedPatchApplied
+        ? {
+            label: "PATCHED CLONE",
+            headline:
+              selectedFinding.retestStatus === "failed"
+                ? "Patch applied; issue remains"
+                : "Patch applied; re-analysis pending",
+            status:
+              selectedFinding.retestStatus === "failed"
+                ? "Root cause not cleared"
+                : verificationCopy.incomplete,
+            className: "failed",
+          }
+        : selectedFinding.patchStatus === "generated"
+          ? {
+              label: "PROPOSED PATCH",
+              headline: "Patch proposed, not applied",
+              status: "Re-analysis not run",
+              className: "incomplete",
+            }
+          : {
+              label: "PATCH STATUS",
+              headline: "No patch generated",
+              status: "Re-analysis not run",
+              className: "incomplete",
+            };
+  const comparisonNote = !selectedFinding
+    ? ""
+    : selectedPatchApplied
+      ? verificationCopy.comparison
+      : selectedFinding.patchStatus === "generated"
+        ? "Deadbolt generated a proposed diff but could not apply it cleanly to the isolated in-memory clone. The source repository was never changed, and hunt re-analysis did not run."
+        : "Deadbolt did not generate an applicable diff for this finding. The source repository was never changed, and hunt re-analysis did not run.";
 
   function changeFilter(nextFilter: ReportFilter) {
     const matches =
@@ -65,7 +152,192 @@ export function ReportExperience({
   }
 
   if (!selectedFinding) {
-    return null;
+    const cleanScanComplete =
+      coverageComplete &&
+      report.passes.every(
+        (pass) => pass.findings.length === 0 && pass.checkedFiles.length > 0,
+      );
+
+    return (
+      <section className="security-report" aria-labelledby="report-title">
+        <header className="report-masthead">
+          {onStartOver ? (
+            <button type="button" onClick={onStartOver}>
+              <span aria-hidden="true">←</span>
+              New analysis
+            </button>
+          ) : (
+            <a href="/analyze">
+              <span aria-hidden="true">←</span>
+              New analysis
+            </a>
+          )}
+          <div>
+            <span
+              className={`report-engine ${
+                report.engine.liveModel ? "live" : "fixture"
+              }`}
+            >
+              {verificationCopy.engine}
+            </span>
+            <span className="report-run-id">
+              {report.runId.slice(0, 14).toUpperCase()}
+            </span>
+          </div>
+        </header>
+
+        <section className="report-verdict clean-report-verdict">
+          <div className="verdict-copy">
+            <p className="eyebrow">ANALYSIS REPORT · REVIEWABLE EVIDENCE</p>
+            <div
+              className={`verdict-status ${
+                cleanScanComplete ? "verified" : ""
+              }`}
+            >
+              <span aria-hidden="true" />
+              <p>
+                {cleanScanComplete
+                  ? "NO VULNERABILITIES FOUND"
+                  : "SCAN INCOMPLETE"}
+              </p>
+            </div>
+            <h2 id="report-title">
+              {cleanScanComplete
+                ? "No vulnerabilities found in this scan."
+                : "No findings returned, but hunt coverage is incomplete."}
+            </h2>
+            <p className="verdict-summary">
+              {cleanScanComplete
+                ? "All requested hunt lenses completed and returned no evidence-backed findings in the bounded repository snapshot. This is not a guarantee that the code has no vulnerabilities."
+                : "Deadbolt cannot make a clean claim because every requested hunt lens did not return complete coverage."}
+            </p>
+            <a className="report-jump" href="#hunt-coverage">
+              Inspect hunt coverage
+              <span aria-hidden="true">↓</span>
+            </a>
+          </div>
+
+          <div className="risk-tally" aria-label="Clean scan totals">
+            <div className="risk-total">
+              <span>0</span>
+              <p>vulnerabilities found</p>
+            </div>
+            <div className="risk-breakdown">
+              <div>
+                <span className="risk-swatch clean" />
+                <p>Hunt lenses completed</p>
+                <strong>{report.coverage.completedClasses.length}</strong>
+              </div>
+              <div>
+                <span className="risk-swatch clean" />
+                <p>Files analyzed</p>
+                <strong>{report.repository.filesAnalyzed}</strong>
+              </div>
+              <div>
+                <span className="risk-swatch clean" />
+                <p>Patches needed</p>
+                <strong>0</strong>
+              </div>
+              <div>
+                <span className="risk-swatch clean" />
+                <p>Original repository</p>
+                <strong>UNCHANGED</strong>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section className="report-progress" aria-label="Deadbolt progress">
+          <article className="complete">
+            <span>01</span>
+            <div>
+              <p>Threat model</p>
+              <strong>Mapped</strong>
+            </div>
+          </article>
+          <article className={cleanScanComplete ? "complete" : ""}>
+            <span>02</span>
+            <div>
+              <p>Hunt</p>
+              <strong>
+                {cleanScanComplete ? "Completed · 0 found" : "Incomplete"}
+              </strong>
+            </div>
+          </article>
+          <article>
+            <span>03</span>
+            <div>
+              <p>Patch</p>
+              <strong>Not needed</strong>
+            </div>
+          </article>
+          <article>
+            <span>04</span>
+            <div>
+              <p>{verificationCopy.stage}</p>
+              <strong>Not needed</strong>
+            </div>
+          </article>
+        </section>
+
+        <section className="hunt-coverage" id="hunt-coverage">
+          <div className="report-section-heading compact">
+            <div>
+              <p className="eyebrow">WHAT DEADBOLT CHECKED</p>
+              <h2>Four independent security lenses.</h2>
+            </div>
+            <p>
+              Each clean pass includes its checked-file coverage and the reason
+              it did not produce an evidence-backed finding.
+            </p>
+          </div>
+
+          <div className="hunt-grid">
+            {report.passes.map((pass) => (
+              <article key={pass.huntClass} className="clean">
+                <div className="hunt-card-top">
+                  <span className="hunt-status-dot" />
+                  <p>{humanizeHuntClass(pass.huntClass)}</p>
+                  <strong>Clean</strong>
+                </div>
+                <p>{pass.summary}</p>
+                <div className="hunt-file-count">
+                  <span>{pass.checkedFiles.length}</span>
+                  files traced
+                </div>
+                {pass.noFindingReason ? (
+                  <small>{pass.noFindingReason}</small>
+                ) : null}
+              </article>
+            ))}
+          </div>
+        </section>
+
+        <details className="report-raw-contract">
+          <summary>
+            <span>RAW STRUCTURED CONTRACT</span>
+            <span>Schema {report.schemaVersion} · inspect JSON</span>
+          </summary>
+          <pre>{JSON.stringify(report, null, 2)}</pre>
+        </details>
+
+        <div
+          className={`report-footer ${cleanScanComplete ? "complete" : ""}`}
+        >
+          <div>
+            <span className="status-dot" aria-hidden="true" />
+            <p>
+              {cleanScanComplete
+                ? "ANALYSIS COMPLETE"
+                : "ANALYSIS INCOMPLETE"}
+            </p>
+          </div>
+          <p>
+            0 FINDINGS · 0 PATCHES NEEDED · ORIGINAL UNCHANGED
+          </p>
+        </div>
+      </section>
+    );
   }
 
   return (
@@ -88,9 +360,7 @@ export function ReportExperience({
               report.engine.liveModel ? "live" : "fixture"
             }`}
           >
-            {report.engine.liveModel
-              ? "LIVE · GPT-5.6 SOL"
-              : "VERIFIED FIXTURE · SOL DEFERRED"}
+            {verificationCopy.engine}
           </span>
           <span className="report-run-id">
             {report.runId.slice(0, 14).toUpperCase()}
@@ -100,8 +370,10 @@ export function ReportExperience({
 
       <section className="report-verdict">
         <div className="verdict-copy">
-          <p className="eyebrow">FULL LOOP · REVIEWABLE EVIDENCE</p>
-          <div className="verdict-status verified">
+          <p className="eyebrow">ANALYSIS REPORT · REVIEWABLE EVIDENCE</p>
+          <div
+            className={`verdict-status ${allFindingsPassed ? "verified" : ""}`}
+          >
             <span aria-hidden="true" />
             <p>{verdict.label}</p>
           </div>
@@ -111,7 +383,9 @@ export function ReportExperience({
             <strong>{leadFinding?.plainEnglish}</strong>
           </p>
           <a className="report-jump" href="#finding-detail">
-            Inspect a red → green fix
+            {allFindingsPassed
+              ? "Inspect a red → green fix"
+              : "Inspect finding and remediation status"}
             <span aria-hidden="true">↓</span>
           </a>
         </div>
@@ -119,7 +393,7 @@ export function ReportExperience({
         <div className="risk-tally" aria-label="Finding severity totals">
           <div className="risk-total">
             <span>{report.remediation.retestsPassed}</span>
-            <p>verified fixes</p>
+            <p>{verificationCopy.passedTotal}</p>
           </div>
           <div className="risk-breakdown">
             <div>
@@ -139,8 +413,8 @@ export function ReportExperience({
             </div>
             <div>
               <span className="risk-swatch clean" />
-              <p>Open after re-test</p>
-              <strong>{report.remediation.retestsFailed}</strong>
+              <p>{verificationCopy.open}</p>
+              <strong>{openAfterVerification}</strong>
             </div>
           </div>
         </div>
@@ -161,18 +435,26 @@ export function ReportExperience({
             <strong>{report.findings.length} confirmed</strong>
           </div>
         </article>
-        <article className="complete">
+        <article className={allPatchesApplied ? "complete" : ""}>
           <span>03</span>
           <div>
             <p>Patch</p>
-            <strong>{report.remediation.patchesApplied} applied in clone</strong>
+            <strong>
+              {allPatchesApplied
+                ? `${report.remediation.patchesApplied} applied in clone`
+                : `${report.remediation.patchesApplied}/${report.findings.length} applied in clone`}
+            </strong>
           </div>
         </article>
-        <article className="complete">
+        <article className={allFindingsPassed ? "complete" : ""}>
           <span>04</span>
           <div>
-            <p>Re-test</p>
-            <strong>{report.remediation.retestsPassed} green</strong>
+            <p>{verificationCopy.stage}</p>
+            <strong>
+              {allFindingsPassed
+                ? `${report.remediation.retestsPassed} ${verificationCopy.passedShort}`
+                : `${report.remediation.retestsPassed}/${report.findings.length} ${verificationCopy.passedShort}; ${openAfterVerification} open`}
+            </strong>
           </div>
         </article>
       </section>
@@ -229,7 +511,7 @@ export function ReportExperience({
                   <small>{severityGuidance[finding.severity]}</small>
                   <small className="finding-retest">
                     {finding.retestStatus === "passed"
-                      ? "✓ FIX VERIFIED"
+                      ? verificationCopy.findingPassed
                       : finding.retestStatus.toUpperCase()}
                   </small>
                 </span>
@@ -273,26 +555,27 @@ export function ReportExperience({
                 Original risk confirmed
               </div>
             </article>
-            <div className="comparison-arrow" aria-hidden="true">
+            <div
+              className={`comparison-arrow ${
+                selectedRetestPassed ? "passed" : ""
+              }`}
+              aria-hidden="true"
+            >
               →
             </div>
-            <article className="target-state">
-              <span>AFTER PATCH</span>
-              <strong>Focused fix applied</strong>
+            <article
+              className={`target-state ${selectedPatchState?.className ?? "incomplete"}`}
+            >
+              <span>{selectedPatchState?.label}</span>
+              <strong>{selectedPatchState?.headline}</strong>
               <p>{selectedFinding.remediationPlan}</p>
               <div>
                 <span aria-hidden="true" />
-                {selectedFinding.retestStatus === "passed"
-                  ? "Re-test passed"
-                  : "Re-test incomplete"}
+                {selectedPatchState?.status}
               </div>
             </article>
           </div>
-          <p className="comparison-note">
-            The source repository was never changed. Deadbolt applied this exact
-            diff to an isolated in-memory clone and re-ran the finding-specific
-            security invariant.
-          </p>
+          <p className="comparison-note">{comparisonNote}</p>
 
           <section className="patch-section">
             <div className="detail-section-heading">
@@ -302,7 +585,12 @@ export function ReportExperience({
               </div>
               <code>{selectedFinding.id}.patch</code>
             </div>
-            <pre>{selectedFinding.patchDiff ?? "No patch was generated."}</pre>
+            <pre>
+              {selectedFinding.patchDiff ??
+                (selectedFinding.patchStatus === "generated"
+                  ? "A patch was proposed but could not be applied cleanly. No replayable diff is available."
+                  : "No patch was generated.")}
+            </pre>
             <div
               className={`retest-proof ${selectedFinding.retestStatus}`}
             >
@@ -311,11 +599,12 @@ export function ReportExperience({
               </span>
               <div>
                 <strong>
-                  RE-TEST {selectedFinding.retestStatus.toUpperCase()}
+                  {verificationCopy.proof}{" "}
+                  {selectedFinding.retestStatus.toUpperCase()}
                 </strong>
                 <p>
                   {selectedFinding.retestEvidence ??
-                    "No re-test evidence was returned."}
+                    verificationCopy.missing}
                 </p>
               </div>
             </div>
@@ -443,8 +732,6 @@ export function ReportExperience({
         </div>
       </section>
 
-      <LiveVerificationPanel />
-
       <details className="report-raw-contract">
         <summary>
           <span>RAW STRUCTURED CONTRACT</span>
@@ -453,12 +740,20 @@ export function ReportExperience({
         <pre>{JSON.stringify(report, null, 2)}</pre>
       </details>
 
-      <div className="report-footer">
+      <div className={`report-footer ${allFindingsPassed ? "complete" : ""}`}>
         <div>
           <span className="status-dot" aria-hidden="true" />
-          <p>FULL LOOP COMPLETE</p>
+          <p>
+            {allFindingsPassed
+              ? "FULL LOOP COMPLETE"
+              : "REMEDIATION INCOMPLETE"}
+          </p>
         </div>
-        <p>8 PATCHES · 8 GREEN · ORIGINAL UNCHANGED</p>
+        <p>
+          {report.remediation.patchesApplied}/{report.findings.length} PATCHES
+          APPLIED · {report.remediation.retestsPassed}/{report.findings.length}{" "}
+          {verificationCopy.passedShort.toUpperCase()} · ORIGINAL UNCHANGED
+        </p>
       </div>
     </section>
   );

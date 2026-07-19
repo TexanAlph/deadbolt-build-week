@@ -33,7 +33,7 @@ async function main() {
     }
 
     if (url.pathname === "/") {
-      return new Response("<main>InvoicePilot</main>", { status: 200 });
+      return new Response("<main>Owned fixture</main>", { status: 200 });
     }
 
     if (url.pathname === "/api/invoices") {

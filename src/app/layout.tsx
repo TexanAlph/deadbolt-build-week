@@ -1,15 +1,19 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import localFont from "next/font/local";
 import "./globals.css";
 
-const geistSans = Geist({
+const geistSans = localFont({
+  src: "./fonts/geist-latin.woff2",
   variable: "--font-geist-sans",
-  subsets: ["latin"],
+  display: "swap",
+  weight: "100 900",
 });
 
-const geistMono = Geist_Mono({
+const geistMono = localFont({
+  src: "./fonts/geist-mono-latin.woff2",
   variable: "--font-geist-mono",
-  subsets: ["latin"],
+  display: "swap",
+  weight: "100 900",
 });
 
 export const metadata: Metadata = {
@@ -22,7 +26,7 @@ export const metadata: Metadata = {
     template: "%s · Deadbolt",
   },
   description:
-    "An autonomous blue-team security agent that finds, fixes, and re-tests vulnerabilities in apps you own.",
+    "An autonomous blue-team security agent that finds risks, patches an isolated clone, and re-analyzes the patched source.",
   applicationName: "Deadbolt",
   keywords: [
     "application security",
@@ -36,24 +40,24 @@ export const metadata: Metadata = {
   openGraph: {
     type: "website",
     siteName: "Deadbolt",
-    title: "Deadbolt — Find it, patch it, prove it",
+    title: "Deadbolt — Find it, patch it, re-analyze it",
     description:
-      "A blue-team security loop for solo builders: threat model, hunt, patch, and re-test to green.",
+      "A blue-team security loop for solo builders: threat model, hunt, patch, and rerun the affected hunt against the patched source.",
     images: [
       {
-        url: "/og.png",
+        url: "/og-vertical-axis.png",
         width: 1200,
         height: 630,
-        alt: "A Deadbolt scan beam isolates a red software bug and connects it to a green verified shield.",
+        alt: "A Deadbolt flashlight beam isolates a red software bug against a dark source-code graph.",
       },
     ],
   },
   twitter: {
     card: "summary_large_image",
-    title: "Deadbolt — Find it, patch it, prove it",
+    title: "Deadbolt — Find it, patch it, re-analyze it",
     description:
-      "A blue-team security loop for solo builders: threat model, hunt, patch, and re-test to green.",
-    images: ["/og.png"],
+      "A blue-team security loop for solo builders: threat model, hunt, patch, and rerun the affected hunt against the patched source.",
+    images: ["/og-vertical-axis.png"],
   },
 };
 

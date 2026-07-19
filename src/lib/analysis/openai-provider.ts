@@ -26,6 +26,12 @@ import {
   applyPatchPlans,
   type PatchPlan,
 } from "./patch-engine";
+import { ensureGloballyUniqueFindingIds } from "./finding-ids";
+import {
+  collectNewReanalysisFindings,
+  evaluateHuntReanalysis,
+  type ReanalysisFailures,
+} from "./reanalysis";
 import {
   buildLocalEvidenceDigest,
   readRepositoryFiles,
@@ -38,7 +44,6 @@ import {
   CORE_HUNT_PROMPT,
   EVIDENCE_REDUCTION_PROMPT,
   PATCH_PROMPT,
-  RETEST_PROMPT,
   THREAT_MODEL_PROMPT,
   huntInstructions,
 } from "./prompts";
@@ -83,28 +88,16 @@ const PatchBundleSchema = z
             .array(
               z
                 .object({
-                  path: z.string(),
-                  expected: z.string(),
+                  path: z.string().trim().min(1),
+                  startLine: z.number().int().positive(),
+                  endLine: z.number().int().positive(),
+                  expected: z.string().min(1),
                   replacement: z.string(),
                 })
                 .strict(),
             )
             .min(1)
             .max(8),
-        })
-        .strict(),
-    ),
-  })
-  .strict();
-
-const RetestBundleSchema = z
-  .object({
-    results: z.array(
-      z
-        .object({
-          findingId: z.string(),
-          status: z.enum(["passed", "failed"]),
-          evidence: z.string(),
         })
         .strict(),
     ),
@@ -458,8 +451,10 @@ async function runHuntPass(
   digest: EvidenceDigest,
   huntClass: HuntClass,
   usage: UsageCollector,
+  verificationTargets: Finding[] = [],
 ) {
   const group = digest.groups.find((item) => item.huntClass === huntClass);
+  const isReanalysis = verificationTargets.length > 0;
   const response = await client.responses.parse({
     model: SOL_MODEL,
     store: false,
@@ -475,6 +470,16 @@ async function runHuntPass(
               huntInstructions[huntClass],
               `<threat_model>${JSON.stringify(threatModel)}</threat_model>`,
               `<reduced_evidence>${JSON.stringify(group)}</reduced_evidence>`,
+              isReanalysis
+                ? [
+                    "This is a fresh re-analysis of an isolated patched clone.",
+                    "Apply the same evidence standard as the original hunt.",
+                    "If an original root cause remains, reuse its exact finding ID.",
+                    "Do not reuse an ID when that root cause is absent.",
+                    "Report any other evidence-backed findings normally.",
+                    `<verification_targets>${JSON.stringify(verificationTargets)}</verification_targets>`,
+                  ].join("\n")
+                : "",
               `<repository>${renderRepositoryBundle(snapshot)}</repository>`,
             ].join("\n\n"),
           },
@@ -487,24 +492,30 @@ async function runHuntPass(
       verbosity: "medium",
     },
     include: ["reasoning.encrypted_content"],
-    prompt_cache_key: "deadbolt:parallel-hunts:v1",
+    prompt_cache_key: isReanalysis
+      ? "deadbolt:hunt-reanalysis:v1"
+      : "deadbolt:parallel-hunts:v1",
     prompt_cache_options: { mode: "explicit", ttl: "30m" },
     safety_identifier: "deadbolt-self-audit",
     max_output_tokens: 18_000,
-    metadata: { stage: "hunt", hunt_class: huntClass },
+    metadata: {
+      stage: isReanalysis ? "hunt_reanalysis" : "hunt",
+      hunt_class: huntClass,
+    },
   });
   usage.add(response.usage);
   const parsed = requireParsed(response.output_parsed, `${huntClass} hunt`);
   return HuntPassSchema.parse({
     ...parsed,
-    agentId: `sol-${huntClass}`,
+    agentId: `sol-${huntClass}${isReanalysis ? "-reanalysis" : ""}`,
     huntClass,
   });
 }
 
-async function runPatchAndRetest(
+async function runPatchAndReanalyze(
   client: OpenAI,
   snapshot: RepositorySnapshot,
+  threatModel: z.infer<typeof ThreatModelSchema>,
   findings: Finding[],
   usage: UsageCollector,
 ) {
@@ -569,80 +580,93 @@ async function runPatchAndRetest(
     .filter((result) => result.applied)
     .map((result) => result.findingId);
 
-  let retestResults: z.infer<typeof RetestBundleSchema>["results"] = [];
+  const appliedFindings = findings.filter((finding) =>
+    appliedFindingIds.includes(finding.id),
+  );
+  let reanalysisOutcomes = evaluateHuntReanalysis(appliedFindings, []);
+  let newlyDiscoveredFindings: Finding[] = [];
+
   if (appliedFindingIds.length > 0) {
-    const retestResponse = await client.responses.parse({
-      model: SOL_MODEL,
-      store: false,
-      input: [
-        stableDeveloperMessage(RETEST_PROMPT),
-        {
-          role: "user",
-          content: [
-            {
-              type: "input_text",
-              text: [
-                `<findings>${JSON.stringify(
-                  findings.filter((finding) =>
-                    appliedFindingIds.includes(finding.id),
-                  ),
-                )}</findings>`,
-                `<patched_repository>${renderRepositoryBundle(sandbox)}</patched_repository>`,
-              ].join("\n\n"),
-            },
-          ],
-        },
-      ],
-      reasoning: { effort: "max", summary: "auto" },
-      text: {
-        format: zodTextFormat(RetestBundleSchema, "deadbolt_retest_bundle"),
-        verbosity: "medium",
-      },
-      include: ["reasoning.encrypted_content"],
-      prompt_cache_key: "deadbolt:retest:v1",
-      prompt_cache_options: { mode: "explicit", ttl: "30m" },
-      safety_identifier: "deadbolt-self-audit",
-      max_output_tokens: 16_000,
-      metadata: { stage: "retest" },
+    const { digest: patchedDigest } = await reduceEvidence(
+      client,
+      sandbox,
+      usage,
+    );
+    const affectedClasses = [
+      ...new Set(appliedFindings.map((finding) => finding.huntClass)),
+    ];
+    const settledReanalysisPasses = await Promise.allSettled(
+      affectedClasses.map((huntClass) =>
+        runHuntPass(
+          client,
+          sandbox,
+          threatModel,
+          patchedDigest,
+          huntClass,
+          usage,
+          appliedFindings.filter(
+            (finding) => finding.huntClass === huntClass,
+          ),
+        ),
+      ),
+    );
+    const reanalysisPasses = settledReanalysisPasses.flatMap((result) =>
+      result.status === "fulfilled" ? [result.value] : [],
+    );
+    const reanalysisFailures: ReanalysisFailures = {};
+    settledReanalysisPasses.forEach((result, index) => {
+      if (result.status === "rejected") {
+        reanalysisFailures[affectedClasses[index]] =
+          "the model call failed or returned incomplete structured output";
+      }
     });
-    usage.add(retestResponse.usage);
-    retestResults = requireParsed(
-      retestResponse.output_parsed,
-      "Patch re-test",
-    ).results;
+    reanalysisOutcomes = evaluateHuntReanalysis(
+      appliedFindings,
+      reanalysisPasses,
+      reanalysisFailures,
+    );
+    newlyDiscoveredFindings = collectNewReanalysisFindings(
+      findings,
+      reanalysisPasses,
+    );
   }
 
-  const retestByFinding = new Map(
-    retestResults.map((result) => [result.findingId, result]),
+  const reanalysisByFinding = new Map(
+    reanalysisOutcomes.map((result) => [result.findingId, result]),
   );
   const remediatedFindings = findings.map((finding): Finding => {
     const patch = patchesByFinding.get(finding.id);
-    const retest = retestByFinding.get(finding.id);
+    const reanalysis = reanalysisByFinding.get(finding.id);
 
     return {
       ...finding,
       patchDiff: patch?.diff || null,
       patchStatus: patch?.applied
         ? "applied_to_sandbox"
-        : patch?.diff
+        : patch
           ? "generated"
           : "not_generated",
       retestStatus: patch?.applied
-        ? (retest?.status ?? "failed")
+        ? (reanalysis?.status ?? "failed")
         : "not_run",
       retestEvidence:
-        retest?.evidence ??
+        reanalysis?.evidence ??
         patch?.error ??
-        "No exact patch could be applied to the sandbox.",
+        "No exact patch could be applied to the isolated clone, so hunt re-analysis did not run.",
     };
   });
 
+  const reportFindings = [
+    ...remediatedFindings,
+    ...newlyDiscoveredFindings,
+  ];
+
   return {
-    findings: remediatedFindings,
+    findings: reportFindings,
     summary: {
       sandboxed: true as const,
       originalRepositoryUnchanged: true as const,
-      patchesGenerated: results.filter((result) => result.diff).length,
+      patchesGenerated: results.length,
       patchesApplied: results.filter((result) => result.applied).length,
       retestsPassed: remediatedFindings.filter(
         (finding) => finding.retestStatus === "passed",
@@ -671,7 +695,7 @@ export async function runOpenAIAnalysis(
     repository.snapshot,
     usage,
   );
-  const passes = await Promise.all(
+  const rawPasses = await Promise.all(
     huntClasses.map((huntClass) =>
       runHuntPass(
         client,
@@ -683,10 +707,12 @@ export async function runOpenAIAnalysis(
       ),
     ),
   );
+  const passes = ensureGloballyUniqueFindingIds(rawPasses);
   const distilled = distillFindings(passes);
-  const remediation = await runPatchAndRetest(
+  const remediation = await runPatchAndReanalyze(
     client,
     repository.snapshot,
+    threatModel,
     distilled,
     usage,
   );

@@ -7,9 +7,9 @@ import type {
   AnalysisReport,
   RepositoryFile,
 } from "@/lib/analysis/schemas";
+import { browserUploadPath } from "@/lib/analysis/browser-upload";
 
-type IntakeMode = "demo" | "upload";
-type RunState = "idle" | "reading" | "running" | "complete" | "error";
+type RunState = "idle" | "reading" | "running" | "error";
 
 const allowedExtensions = [
   ".cjs",
@@ -32,6 +32,11 @@ const allowedExtensions = [
   ".yml",
 ];
 
+const directoryPickerAttributes = {
+  webkitdirectory: "",
+  directory: "",
+} as Record<string, string>;
+
 function isAcceptedFile(file: File) {
   const name = file.name.toLowerCase();
   return (
@@ -46,13 +51,11 @@ function isAcceptedFile(file: File) {
 function statusText(state: RunState) {
   if (state === "reading") return "READING FILES";
   if (state === "running") return "RUNNING CORE";
-  if (state === "complete") return "8/8 VERIFIED";
   if (state === "error") return "RUN STOPPED";
   return "AWAITING INTAKE";
 }
 
 export function AnalysisConsole() {
-  const [mode, setMode] = useState<IntakeMode>("demo");
   const [ownershipConfirmed, setOwnershipConfirmed] = useState(false);
   const [repositoryName, setRepositoryName] = useState("My application");
   const [files, setFiles] = useState<RepositoryFile[]>([]);
@@ -72,6 +75,7 @@ export function AnalysisConsole() {
     setError("");
     const selected = Array.from(event.target.files ?? []);
     const accepted: RepositoryFile[] = [];
+    const acceptedPaths = new Set<string>();
     let excluded = 0;
     let totalCharacters = 0;
 
@@ -91,7 +95,14 @@ export function AnalysisConsole() {
         continue;
       }
 
-      accepted.push({ path: file.webkitRelativePath || file.name, content });
+      const path = browserUploadPath(file.name, file.webkitRelativePath);
+      if (acceptedPaths.has(path)) {
+        excluded += 1;
+        continue;
+      }
+
+      accepted.push({ path, content });
+      acceptedPaths.add(path);
       totalCharacters += content.length;
     }
 
@@ -106,7 +117,7 @@ export function AnalysisConsole() {
       return;
     }
 
-    if (mode === "upload" && files.length === 0) {
+    if (files.length === 0) {
       setError("Choose at least one supported source file.");
       return;
     }
@@ -116,18 +127,15 @@ export function AnalysisConsole() {
     setReport(null);
 
     try {
-      const body =
-        mode === "demo"
-          ? { source: "demo", ownershipConfirmed: true }
-          : {
-              source: "upload",
-              ownershipConfirmed: true,
-              repository: {
-                name: repositoryName,
-                source: "upload",
-                files,
-              },
-            };
+      const body = {
+        source: "upload",
+        ownershipConfirmed: true,
+        repository: {
+          name: repositoryName,
+          source: "upload",
+          files,
+        },
+      };
       const request = await fetch("/api/analyze", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -145,7 +153,6 @@ export function AnalysisConsole() {
       }
 
       setReport(payload.report);
-      setState("complete");
     } catch (runError) {
       setError(
         runError instanceof Error
@@ -178,87 +185,35 @@ export function AnalysisConsole() {
           <p>CHOOSE WHAT TO SCAN</p>
         </div>
 
-        <div className="mode-switch" aria-label="Repository source">
-          <button
-            className={mode === "demo" ? "active" : ""}
-            type="button"
-            onClick={() => {
-              setMode("demo");
-              setReport(null);
-              setError("");
-            }}
-          >
-            InvoicePilot demo
-          </button>
-          <button
-            className={mode === "upload" ? "active" : ""}
-            type="button"
-            onClick={() => {
-              setMode("upload");
-              setReport(null);
-              setError("");
-            }}
-          >
-            My source files
-          </button>
-        </div>
-
-        {mode === "demo" ? (
-          <>
-            <div className="demo-repo-card">
-              <div>
-                <p className="repo-name">InvoicePilot</p>
-                <p>
-                  Synthetic invoice SaaS · 19 source files · 8 planted findings
-                </p>
-              </div>
-              <span>READY TO SCAN</span>
-            </div>
-            <ol className="scan-checklist" aria-label="How to run the demo">
-              <li>
-                <span>1</span>
-                InvoicePilot is already selected.
-              </li>
-              <li>
-                <span>2</span>
-                Confirm authorization below.
-              </li>
-              <li>
-                <span>3</span>
-                Press the green scan button.
-              </li>
-            </ol>
-          </>
-        ) : (
-          <div className="upload-fields">
-            <label>
-              Repository name
-              <input
-                value={repositoryName}
-                onChange={(event) => setRepositoryName(event.target.value)}
-                maxLength={80}
-              />
-            </label>
-            <label className="file-drop">
-              <span>Choose source files</span>
-              <small>
-                Up to 100 text files / 320K characters. Secrets files, private
-                keys, dependencies, and build output are excluded.
-              </small>
-              <input
-                type="file"
-                multiple
-                onChange={handleFiles}
-                accept={allowedExtensions.join(",")}
-              />
-            </label>
-            <div className="file-stats" aria-live="polite">
-              <span>{files.length} accepted</span>
-              <span>{selectedCharacters.toLocaleString()} characters</span>
-              <span>{excludedCount} excluded</span>
-            </div>
+        <div className="upload-fields public-upload-fields">
+          <label>
+            Repository name
+            <input
+              value={repositoryName}
+              onChange={(event) => setRepositoryName(event.target.value)}
+              maxLength={80}
+            />
+          </label>
+          <label className="file-drop">
+            <span>Choose repository folder</span>
+            <small>
+              Up to 100 text files / 320K characters. Secrets files, private
+              keys, dependencies, and build output are excluded.
+            </small>
+            <input
+              type="file"
+              multiple
+              {...directoryPickerAttributes}
+              onChange={handleFiles}
+              accept={allowedExtensions.join(",")}
+            />
+          </label>
+          <div className="file-stats" aria-live="polite">
+            <span>{files.length} accepted</span>
+            <span>{selectedCharacters.toLocaleString()} characters</span>
+            <span>{excludedCount} excluded</span>
           </div>
-        )}
+        </div>
 
         <label className="ownership-check">
           <input
@@ -280,10 +235,8 @@ export function AnalysisConsole() {
           <span>{statusText(state)}</span>
           <strong>
             {state === "running"
-              ? "Hunting, patching, re-testing…"
-              : mode === "demo"
-                ? "Scan InvoicePilot → patch → re-test"
-                : "Run full security loop"}
+              ? "Hunting, patching, re-analyzing…"
+              : "Run full security loop"}
           </strong>
           <span aria-hidden="true">↘</span>
         </button>
@@ -295,16 +248,15 @@ export function AnalysisConsole() {
         ) : null}
 
         <p className="fixture-note">
-          Without an API key, only InvoicePilot runs in deterministic fixture
-          mode. Uploaded repositories remain local to this request and require
-          the live GPT-5.6 Sol provider.
+          Uploaded repositories are processed only for this analysis request.
+          Live source analysis requires the configured GPT-5.6 Sol provider.
         </p>
       </section>
 
       <section className="run-panel" aria-live="polite">
         <div className="run-heading">
           <div>
-            <p className="eyebrow">FULL HUNT → PATCH → RE-TEST PIPELINE</p>
+            <p className="eyebrow">FULL HUNT → PATCH → RE-ANALYZE PIPELINE</p>
             <h2>No analysis run yet</h2>
           </div>
           <span className="engine-pill fixture">AWAITING RUN</span>
@@ -338,7 +290,7 @@ export function AnalysisConsole() {
           </div>
           <div>
             <span>06</span>
-            <p>Re-tests</p>
+            <p>Hunt re-analysis</p>
             <strong>—</strong>
           </div>
         </div>
@@ -346,8 +298,8 @@ export function AnalysisConsole() {
         <div className="empty-run">
           <span>DB—READY</span>
           <p>
-            Confirm ownership and run InvoicePilot to generate the complete
-            report, eight isolated patches, and eight green re-tests.
+            Add source files and confirm ownership to start the threat model,
+            four focused hunts, isolated patches, and affected-hunt re-analysis.
           </p>
         </div>
       </section>
