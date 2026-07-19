@@ -45,7 +45,8 @@ const scanSteps = [
   {
     number: "03",
     title: "Run the full loop",
-    detail: "Review evidence, focused patches, and affected-hunt re-analysis.",
+    detail:
+      "Use the API-backed engine to review evidence, focused patches, and affected-hunt re-analysis.",
   },
 ];
 
@@ -75,7 +76,7 @@ export default function Home() {
 
         <div className="header-status" aria-label="Build status">
           <span className="status-dot" aria-hidden="true" />
-          <span>ENGINE READY</span>
+          <span>API-BACKED ENGINE</span>
         </div>
       </header>
 
@@ -106,7 +107,7 @@ export default function Home() {
             <div className="scan-command-title">
               <p>START A DEFENSIVE AUDIT</p>
               <strong>Your repository</strong>
-              <span>Source-only analysis for code you own</span>
+              <span>API-backed source analysis for code you own</span>
             </div>
 
             <div className="scan-command-metrics" aria-label="Audit capabilities">
@@ -114,7 +115,7 @@ export default function Home() {
                 <strong>4</strong> HUNT PASSES
               </span>
               <span>
-                <strong>EXACT</strong> PATCHES
+                <strong>FOCUSED</strong> PATCH PLANS
               </span>
               <span>
                 <strong>FRESH</strong> RE-ANALYSIS
@@ -134,7 +135,7 @@ export default function Home() {
             <h2>
               Find the bug.
               <span>Fix the risk.</span>
-              <em>Prove it.</em>
+              <em>Re-analyze it.</em>
             </h2>
           </div>
 
@@ -157,6 +158,12 @@ export default function Home() {
               For repositories and deployments you own or are authorized to
               test.
             </p>
+            <p className="home-ownership">
+              The web product is the API-backed hunt → patch → re-analysis
+              engine. The keyless <code>$deadbolt</code> Codex Skill is a
+              separate read-only reasoning audit; it does not run this engine
+              or claim patch verification.
+            </p>
           </div>
         </section>
 
@@ -172,7 +179,7 @@ export default function Home() {
 
         <section className="scan-guide" id="try">
           <div className="scan-guide-heading">
-            <p className="eyebrow">RUN THE REAL LOOP</p>
+            <p className="eyebrow">API-BACKED ENGINE LOOP</p>
             <h2>
               Bring the code.
               <span>Deadbolt brings the security loop.</span>
@@ -230,7 +237,10 @@ export default function Home() {
           <div className="process-heading">
             <div>
               <p className="eyebrow">THE CORE LOOP</p>
-              <h2>A finding is not finished until the fix turns green.</h2>
+              <h2>
+                A finding is not finished until the patched clone is
+                re-analyzed.
+              </h2>
             </div>
             <p>
               Every result connects evidence, human impact, a focused patch,

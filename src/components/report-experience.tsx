@@ -53,7 +53,7 @@ export function ReportExperience({
   );
   const verificationCopy = isLiveReanalysis
     ? {
-        engine: "LIVE · GPT-5.6 SOL · HUNT RE-ANALYSIS",
+        engine: "API-BACKED · LIVE · GPT-5.6 SOL · HUNT RE-ANALYSIS",
         passedTotal: "cleared by re-analysis",
         open: "Open after re-analysis",
         stage: "Re-analysis",

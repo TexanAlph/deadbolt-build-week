@@ -1,0 +1,22 @@
+{
+  "name": "deadbolt",
+  "version": "0.1.0+codex.20260719230819",
+  "description": "Keyless, evidence-backed security audits for repositories you own.",
+  "author": {
+    "name": "Deadbolt Build Week"
+  },
+  "skills": "./skills/",
+  "interface": {
+    "displayName": "Deadbolt",
+    "shortDescription": "Audit code you own with evidence, not guesses.",
+    "longDescription": "A keyless Codex Skill for source-code security audits. It does not invoke Deadbolt's API-backed TypeScript engine or claim its patch-and-reanalysis loop.",
+    "developerName": "Deadbolt Build Week",
+    "category": "DeveloperTools",
+    "capabilities": [
+      "Read"
+    ],
+    "defaultPrompt": [
+      "Use $deadbolt to audit this repository read-only and report only evidence-backed findings."
+    ]
+  }
+}

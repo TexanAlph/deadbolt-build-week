@@ -26,7 +26,7 @@ export const metadata: Metadata = {
     template: "%s · Deadbolt",
   },
   description:
-    "An autonomous blue-team security agent that finds risks, patches an isolated clone, and re-analyzes the patched source.",
+    "An API-backed blue-team security engine that finds risks, patches an isolated clone, and re-analyzes the patched source.",
   applicationName: "Deadbolt",
   keywords: [
     "application security",
@@ -42,7 +42,7 @@ export const metadata: Metadata = {
     siteName: "Deadbolt",
     title: "Deadbolt — Find it, patch it, re-analyze it",
     description:
-      "A blue-team security loop for solo builders: threat model, hunt, patch, and rerun the affected hunt against the patched source.",
+      "An API-backed blue-team loop for solo builders: threat model, hunt, patch, and rerun the affected hunt against the patched source.",
     images: [
       {
         url: "/og-vertical-axis.png",
@@ -56,7 +56,7 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: "Deadbolt — Find it, patch it, re-analyze it",
     description:
-      "A blue-team security loop for solo builders: threat model, hunt, patch, and rerun the affected hunt against the patched source.",
+      "An API-backed blue-team loop for solo builders: threat model, hunt, patch, and rerun the affected hunt against the patched source.",
     images: ["/og-vertical-axis.png"],
   },
 };

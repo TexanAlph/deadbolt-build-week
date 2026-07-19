@@ -2,6 +2,18 @@
 
 This is the dated evidence trail for the OpenAI Build Week build. Log material model work, Codex techniques, decisions, repairs, validation, and deployment proof here.
 
+## Current proof boundary — 2026-07-19
+
+- **Proven keyless surface:** the packaged `$deadbolt` Codex Skill can perform
+  a source-code reasoning audit without `OPENAI_API_KEY`. Its InvoicePilot
+  walkthrough directs a judge to inspect the IDOR evidence path.
+- **Not claimed as proven:** the API-backed TypeScript engine’s live GPT-5.6
+  hunt, patch planning, and patched-code re-analysis. Those paths require
+  `OPENAI_API_KEY` and remain pending a real API run.
+- Historical fixture results below are deterministic development evidence. They
+  are not evidence that the keyless Skill runs the engine loop or that a live
+  GPT-5.6 API request succeeded.
+
 ## Technique register
 
 | Technique | Status | Evidence |
@@ -514,6 +526,38 @@ Official references:
   socket.
 - Live GPT-5.6 behavior remains pending `OPENAI_API_KEY`; no live-model result
   is marked verified.
+
+### 17:51 CDT — Judge-testable keyless Codex Skill packaged
+
+- Packaged `$deadbolt` as a self-contained `codex-plugin/` distribution with a
+  standard local marketplace manifest, validated plugin manifest, standalone
+  Skill instructions, agent metadata, and audit report contract.
+- The Skill is deliberately audit-only: it uses a signed-in Codex agent to
+  reason over source code without `OPENAI_API_KEY`; it does not invoke
+  `src/lib/analysis` or claim the API-backed hunt → patch → re-analysis loop.
+- Added a keyless InvoicePilot walkthrough that asks for a read-only audit and
+  names the concrete IDOR evidence path the judge should independently verify.
+- The environment lacked PyYAML, so the supplied Python plugin validator could
+  not start. Equivalent JSON/YAML manifest preflight checks passed, and an
+  isolated `CODEX_HOME` install test successfully added the local marketplace
+  and installed `deadbolt@deadbolt-build-week`.
+- No live OpenAI API request was made or marked verified.
+
+### 18:09 CDT — Keyless Skill made blind to InvoicePilot ground truth
+
+- Removed the InvoicePilot-specific finding, route names, and expected outcome
+  from the executable packaged Skill. The Skill now requires a blind source
+  audit: it must defer READMEs, `VULNERABILITY_MANIFEST.json`, `BUILD_LOG.md`,
+  and seed/verification scripts until after its report.
+- Kept the detailed IDOR evidence path only in the human-facing README, which
+  explicitly labels it as a post-report judge checklist rather than model
+  prompt context.
+- Updated the plugin cachebuster to `0.1.0+codex.20260719230819` and installed
+  that exact version into an isolated Codex home. A specific-oracle scan of the
+  installed Skill passed; it no longer contains the InvoicePilot route/data
+  answer.
+- This strengthens the keyless audit demonstration but does not verify any
+  live API-backed engine run.
 
 ### 20:52 CDT — Patch application is line-targeted and replayable
 

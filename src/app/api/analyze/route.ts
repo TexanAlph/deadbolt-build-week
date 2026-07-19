@@ -58,14 +58,17 @@ function reserveRun(request: Request) {
 }
 
 export async function GET() {
+  const liveModelConfigured = Boolean(process.env.OPENAI_API_KEY);
+  const mode = liveModelConfigured
+    ? "openai"
+    : internalDemoEnabled()
+      ? "internal_fixture"
+      : "unavailable";
+
   return response({
     model: "gpt-5.6-sol",
-    liveModelConfigured: Boolean(process.env.OPENAI_API_KEY),
-    mode:
-      process.env.OPENAI_API_KEY &&
-      process.env.DEADBOLT_ANALYSIS_MODE !== "fixture"
-        ? "openai"
-        : "fixture",
+    liveModelConfigured,
+    mode,
     demoAvailable: internalDemoEnabled(),
     ownershipConfirmationRequired: true,
   });

@@ -37,24 +37,27 @@ export default async function DemoPage() {
           <span className="brand-name">DEADBOLT</span>
         </Link>
         <div className="analysis-header-copy">
-          <p>ONE-CLICK DEMO · COMPLETE</p>
-          <span>SELF-AUDIT ONLY</span>
+          <p>INTERNAL FIXTURE · DEVELOPMENT ONLY</p>
+          <span>NOT A LIVE API RUN</span>
         </div>
       </header>
 
       <section className="demo-intro">
         <div>
-          <p className="eyebrow">INTERNAL FIXTURE · PRE-RUN REPORT</p>
+          <p className="eyebrow">
+            INTERNAL DETERMINISTIC FIXTURE · PRE-RUN REPORT
+          </p>
           <h1>
             Eight risks in.
             <span>Eight source invariants green.</span>
           </h1>
         </div>
         <p>
-          No signup, API key, GitHub admin, CodeQL, or CI required. This
-          deterministic run preserves the full finding evidence, applies each
-          exact patch to an isolated clone, and checks deterministic source
-          invariants. It does not execute tests.
+          This gated development fixture is neither the keyless
+          <code> $deadbolt </code> Skill nor a live API run. It preserves the
+          fixture finding evidence, applies each exact patch to an isolated
+          clone, and checks deterministic source invariants. It does not
+          execute tests.
         </p>
       </section>
 

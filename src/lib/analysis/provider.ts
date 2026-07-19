@@ -36,7 +36,7 @@ class DeadboltAnalysisProvider implements AnalysisProvider {
     }
 
     throw new AnalysisProviderUnavailableError(
-      "Live GPT-5.6 Sol analysis is not configured yet. Add OPENAI_API_KEY to enable source analysis.",
+      "The API-backed GPT-5.6 Sol engine is not configured. Add OPENAI_API_KEY to enable source analysis. Codex session access is not used by this web engine; use the separate $deadbolt Skill for a keyless source audit.",
     );
   }
 }

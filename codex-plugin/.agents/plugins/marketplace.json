@@ -1,0 +1,20 @@
+{
+  "name": "deadbolt-build-week",
+  "interface": {
+    "displayName": "Deadbolt Build Week"
+  },
+  "plugins": [
+    {
+      "name": "deadbolt",
+      "source": {
+        "source": "local",
+        "path": "./plugins/deadbolt"
+      },
+      "policy": {
+        "installation": "AVAILABLE",
+        "authentication": "ON_INSTALL"
+      },
+      "category": "DeveloperTools"
+    }
+  ]
+}

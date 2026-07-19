@@ -19,7 +19,7 @@ export default function AnalyzePage() {
           <span className="brand-name">DEADBOLT</span>
         </Link>
         <div className="analysis-header-copy">
-          <p>FULL LOOP · READY</p>
+          <p>API-BACKED FULL LOOP</p>
           <span>SELF-AUDIT ONLY</span>
         </div>
       </header>
@@ -29,14 +29,16 @@ export default function AnalyzePage() {
           <p className="eyebrow">SOURCE-ONLY · SELF-AUDIT</p>
           <h1>
             Find the bug.
-            <span>Fix it. Prove it.</span>
+            <span>Patch it. Re-analyze it.</span>
           </h1>
         </div>
         <p>
           Add source files from an application you own, confirm authorization,
-          and Deadbolt will map the trust boundaries, run four focused hunts,
-          prepare reviewable patches, and rerun each affected hunt against the
-          patched clone.
+          and the API-backed Deadbolt engine can map the trust boundaries, run
+          four focused hunts, prepare reviewable patches, and rerun each
+          affected hunt against the patched clone. It requires a configured
+          provider; the keyless <code>$deadbolt</code> Codex Skill is a
+          separate read-only audit and does not run this loop.
         </p>
       </section>
 

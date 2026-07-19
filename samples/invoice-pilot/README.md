@@ -1,6 +1,14 @@
 # InvoicePilot
 
-InvoicePilot is a deliberately vulnerable, synthetic SaaS used to demonstrate Deadbolt's hunt → patch → re-test loop.
+InvoicePilot is a deliberately vulnerable, synthetic SaaS used as input for
+two separately scoped Deadbolt surfaces:
+
+- the keyless `$deadbolt` Codex Skill, which performs a read-only reasoning
+  audit with source evidence; and
+- the API-backed TypeScript engine, which can run the hunt → patch →
+  re-analysis loop when `OPENAI_API_KEY` is configured.
+
+The sample does not prove that the keyless Skill runs patches or re-analysis.
 
 ## Safety
 

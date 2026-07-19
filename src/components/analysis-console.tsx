@@ -235,8 +235,8 @@ export function AnalysisConsole() {
           <span>{statusText(state)}</span>
           <strong>
             {state === "running"
-              ? "Hunting, patching, re-analyzing…"
-              : "Run full security loop"}
+              ? "API engine hunting, patching, re-analyzing…"
+              : "Run API-backed security loop"}
           </strong>
           <span aria-hidden="true">↘</span>
         </button>
@@ -249,14 +249,19 @@ export function AnalysisConsole() {
 
         <p className="fixture-note">
           Uploaded repositories are processed only for this analysis request.
-          Live source analysis requires the configured GPT-5.6 Sol provider.
+          This web engine requires a configured GPT-5.6 Sol API provider
+          (`OPENAI_API_KEY`). For a keyless Codex reasoning audit, install
+          <code> $deadbolt </code>; it reports source evidence but does not run
+          the patch-and-re-analysis loop.
         </p>
       </section>
 
       <section className="run-panel" aria-live="polite">
         <div className="run-heading">
           <div>
-            <p className="eyebrow">FULL HUNT → PATCH → RE-ANALYZE PIPELINE</p>
+            <p className="eyebrow">
+              API-BACKED HUNT → PATCH → RE-ANALYZE PIPELINE
+            </p>
             <h2>No analysis run yet</h2>
           </div>
           <span className="engine-pill fixture">AWAITING RUN</span>
