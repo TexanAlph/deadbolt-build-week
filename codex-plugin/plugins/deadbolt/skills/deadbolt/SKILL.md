@@ -1,11 +1,13 @@
 ---
 name: deadbolt
 description: >-
-  Run a keyless, evidence-backed source-code security audit of a repository the
-  user owns. Use it to threat-model and inspect code for secrets,
-  authorization/IDOR, input-to-sink risks, and configuration weaknesses. This
-  Skill is audit-only: it does not invoke Deadbolt's API-backed TypeScript
-  engine or claim the engine's hunt-to-patch-to-reanalysis loop.
+  Audit, review, scan, check, or help triage security vulnerabilities in a
+  repository the user owns—including requests such as "is this code secure?",
+  "find security issues", or "fix my security issues." Produce a keyless,
+  evidence-backed, read-only source-code audit covering secrets,
+  authorization/IDOR, input-to-sink risks, and configuration weaknesses. For
+  fix or patch requests, audit first and recommend fixes; never edit code or
+  claim patch-and-verify, which belong to Deadbolt's API-backed engine.
 ---
 
 # Deadbolt — keyless Codex audit
@@ -25,6 +27,16 @@ not the API-backed Deadbolt TypeScript engine.
   patch was applied or verified.
 - **Keyless means:** no separate API key is needed. The person running it must
   still be signed into Codex with model access; this is not an offline scanner.
+
+## Requests to fix or patch security issues
+
+Treat requests such as “fix my security issues,” “patch this vulnerability,”
+or “make this code secure” as Deadbolt audit requests. Perform the same
+read-only, evidence-backed audit, then give prioritized remediation
+recommendations. State clearly that this keyless Skill did not edit code, apply
+a patch, run tests, or verify a fix. Explain that Deadbolt's separate
+API-backed TypeScript engine is the surface that performs hunt → patch →
+re-analysis when it is configured.
 
 ## Installation
 

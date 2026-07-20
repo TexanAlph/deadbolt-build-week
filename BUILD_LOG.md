@@ -14,6 +14,27 @@ This is the dated evidence trail for the OpenAI Build Week build. Log material m
   are not evidence that the keyless Skill runs the engine loop or that a live
   GPT-5.6 API request succeeded.
 
+### 16:55 CDT — Conversational keyless Skill path validated
+
+- Verified the built-in `skill-installer` accepts the exact public GitHub tree
+  URL for the standalone Skill source:
+  `https://github.com/TexanAlph/deadbolt-build-week/tree/main/.agents/skills/deadbolt`.
+  A bare repository URL is insufficient because the installer needs a Skill
+  path.
+- Added the two conversational prompts to the README as the primary judge path:
+  natural-language installation through the built-in Skill Installer, followed
+  by a natural-language local InvoicePilot security audit.
+- Performed a fresh, read-only forward test using only a generic request to
+  audit local InvoicePilot for security vulnerabilities—without `$deadbolt`.
+  Codex implicitly selected the Skill, read its instructions and report
+  contract, honored the blind-audit rule, made no network requests or edits,
+  and returned evidence-backed findings including the IDOR/BOLA path.
+- The existing description already directly matches that request, and
+  `agents/openai.yaml` explicitly permits implicit invocation. It remains
+  unchanged to keep the project-local and packaged copies identical.
+- This validates the keyless Skill-routing and audit surface only. It is not a
+  live API-backed TypeScript-engine run, patch, re-analysis, or test execution.
+
 ### 18:34 CDT — Submission handoff and keyless judge path surfaced
 
 - Captured and pinned the Codex feedback/conversation session for this build:
@@ -553,6 +574,39 @@ Official references:
   socket.
 - Live GPT-5.6 behavior remains pending `OPENAI_API_KEY`; no live-model result
   is marked verified.
+
+### 22:50 CDT — Keyless Skill routing covers audit and fix language honestly
+
+- Broadened the distributable `$deadbolt` Skill description to cover natural
+  audit language (`audit`, `review`, `scan`, `check`, and “is this code
+  secure?”) as well as requests to fix or patch security issues.
+- Added an explicit audit-only response contract for fix/patch requests:
+  Deadbolt performs the evidence-backed audit and recommends remediation, but
+  does not edit code, apply a patch, run tests, or claim verification. The
+  separate API-backed TypeScript engine owns hunt → patch → re-analysis.
+- Forward-tested plain-English audit, check, find, security-review, fix, and
+  patch prompts with fresh/read-only Codex agents; each selected Deadbolt and
+  kept the no-edit/no-verification boundary.
+- Validated the package YAML/JSON frontmatter with Ruby parsers and ran
+  `git diff --check`. The project-local `.agents` mirror could not be updated
+  in this sandbox because it is mounted read-only; judge plugin installs use
+  the updated `codex-plugin/plugins/deadbolt` package.
+
+### 22:56 CDT — Isolated distributable-package test
+
+- Created a temporary `CODEX_HOME` outside the project, registered the local
+  `codex-plugin` marketplace, and installed
+  `deadbolt@deadbolt-build-week` version `0.1.0+codex.20260720225000`.
+  Codex reported it installed and enabled; the cached installed `SKILL.md`
+  byte-matches the package source.
+- Copied InvoicePilot into that temporary area so a new `codex exec` process
+  would not discover this project’s local `.agents` mirror. The process ran
+  with `--ephemeral` and `--sandbox read-only` and received an ordinary
+  “Find security issues” prompt with no `$deadbolt` sigil.
+- The final model-routing assertion is pending network availability: the outer
+  sandbox could not resolve `chatgpt.com`, so Codex exhausted its retries before
+  a model response. This is an honest environment block, not a passing
+  activation result. The installation/distribution path itself is verified.
 
 ### 17:51 CDT — Judge-testable keyless Codex Skill packaged
 

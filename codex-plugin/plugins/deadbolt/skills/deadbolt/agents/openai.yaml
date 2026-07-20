@@ -1,7 +1,7 @@
 interface:
   display_name: "Deadbolt"
-  short_description: "Audit code you own with evidence, not guesses"
+  short_description: "Audit and triage code security risks honestly"
   brand_color: "#B7F34A"
-  default_prompt: "Use $deadbolt to perform a read-only security audit of code I own and cite evidence for every finding."
+  default_prompt: "Use $deadbolt to audit code I own read-only, cite evidence, and recommend fixes without applying them."
 policy:
   allow_implicit_invocation: true

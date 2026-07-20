@@ -13,6 +13,15 @@ This is the primary judge path. It is a read-only Codex Skill that reasons over
 local source code; it is **not** the API-backed TypeScript engine and it does
 not patch code or run tests.
 
+### Fastest path: two conversational prompts
+
+1. **Install:** Tell Codex: “Use the built-in Skill Installer to install the Deadbolt Skill from https://github.com/TexanAlph/deadbolt-build-week/tree/main/.agents/skills/deadbolt.”
+2. **Run:** In a new Codex task opened at a clone of this repository, tell Codex: “Use the installed Deadbolt security-audit Skill to audit the local `samples/invoice-pilot` repository I own for security vulnerabilities. Work read-only and cite file-and-line evidence.”
+
+The installer downloads the Skill, not InvoicePilot itself, so the second line
+still needs this repository open locally. Codex may ask for permission to
+download the public GitHub source. No `OPENAI_API_KEY` is needed.
+
 ### Before you begin
 
 You need only:

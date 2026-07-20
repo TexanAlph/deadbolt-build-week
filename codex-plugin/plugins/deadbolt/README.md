@@ -4,6 +4,11 @@ This package installs the `$deadbolt` Skill: a keyless, evidence-backed source-c
 
 It is deliberately distinct from Deadbolt's web application's API-backed TypeScript engine. The installed Skill uses the Codex agent to read and reason about code; it does **not** invoke the TypeScript engine, generate engine patches, or perform the engine's patch → re-analysis loop.
 
+If someone asks Deadbolt to “fix” or “patch” security issues, the Skill still
+activates: it audits the repository, reports evidence, and recommends fixes.
+It remains read-only and explicitly says that it did not apply or verify a
+patch.
+
 ## Install from this repository
 
 From a local checkout of this repository:
