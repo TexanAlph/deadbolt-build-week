@@ -774,3 +774,26 @@ Official references:
   were visually inspected at their production dimensions.
 - Live GPT-5.6 behavior remains pending `OPENAI_API_KEY`; no live-model result
   is marked verified.
+
+### 22:10 CDT — Pre-submission public-surface cleanup
+
+- Removed six obsolete, claim-bearing image variants from `public/`. The only
+  deployable campaign images now are the visually checked, claim-free
+  `hero-vertical-axis.png` and `og-vertical-axis.png`.
+- Made the keyless `$deadbolt` Codex Skill the homepage’s primary judge path.
+  The API-backed homepage card is now explicitly an illustrative local
+  remediation flow and states that it is not a recorded run.
+- The public analysis console now checks its documented provider capability
+  endpoint on load. With no live API provider, source intake and the run action
+  are disabled and the UI links to the keyless Skill rather than allowing an
+  upload to end in a provider-unavailable response.
+- Added `LICENSE` (MIT) and `SUBMISSION.md`, including the Developer Tools
+  track, canonical repository, keyless judge path, video placeholder, and
+  captured `/feedback` session ID.
+- Made the InvoicePilot sample’s `npm run check` delete stale `.next`
+  artifacts before type-checking. Its build is now deterministic without remote
+  font fetching and uses the supported Webpack build path.
+- Validation passed: root `npm run lint`, `npm run typecheck`, and
+  `npm run build`; exact sample `npm run check`; `git diff --check`; and
+  a browser check of the no-provider deployed-state UI.
+- No live OpenAI API run was performed or represented as verified.

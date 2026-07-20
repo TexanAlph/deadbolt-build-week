@@ -4,14 +4,15 @@
   "private": true,
   "scripts": {
     "dev": "next dev -p 3101",
-    "build": "next build",
+    "build": "next build --webpack",
     "start": "next start -p 3101",
     "lint": "eslint",
     "typecheck": "tsc --noEmit",
+    "clean": "node -e \"require('node:fs').rmSync('.next', { recursive: true, force: true })\"",
     "verify:seeds": "node scripts/verify-seeds.mjs",
     "verify:bundle": "node scripts/verify-bundle.mjs",
     "verify:runtime": "node scripts/verify-runtime.mjs",
-    "check": "npm run lint && npm run typecheck && npm run verify:seeds && npm run build && npm run verify:bundle"
+    "check": "npm run clean && npm run lint && npm run typecheck && npm run verify:seeds && npm run build && npm run verify:bundle"
   },
   "dependencies": {
     "next": "16.2.10",

@@ -1,16 +1,5 @@
 import type { Metadata } from "next";
-import { DM_Sans, Manrope } from "next/font/google";
 import "./globals.css";
-
-const body = DM_Sans({
-  variable: "--font-body",
-  subsets: ["latin"],
-});
-
-const display = Manrope({
-  variable: "--font-display",
-  subsets: ["latin"],
-});
 
 const siteUrl =
   process.env.NEXT_PUBLIC_SITE_URL ??
@@ -44,7 +33,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className={`${body.variable} ${display.variable}`}>
+    <html lang="en">
       <body>{children}</body>
     </html>
   );

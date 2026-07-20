@@ -63,9 +63,9 @@ export default function Home() {
         </a>
 
         <nav className="home-nav" aria-label="Main navigation">
+          <a href="#keyless">RUN KEYLESS IN CODEX</a>
           <a href="#how">HOW IT WORKS</a>
-          <a href="#keyless">RUN KEYLESS</a>
-          <a href="/analyze#scan">AUDIT YOUR SOURCE</a>
+          <a href="/analyze#scan">LOCAL API LOOP</a>
           <a
             href="https://github.com/TexanAlph/deadbolt-build-week"
             target="_blank"
@@ -75,17 +75,18 @@ export default function Home() {
           </a>
         </nav>
 
-        <div className="header-status" aria-label="Build status">
+        <div className="header-status" aria-label="Primary judge path">
           <span className="status-dot" aria-hidden="true" />
-          <span>API-BACKED ENGINE</span>
+          <span>KEYLESS CODEX SKILL</span>
         </div>
       </header>
 
       <main id="top">
         <section className="campaign-hero" aria-labelledby="campaign-heading">
           <h1 className="sr-only" id="campaign-heading">
-            Deadbolt finds security bugs, patches them, and re-analyzes the
-            patched code to confirm the fix
+            Deadbolt&apos;s primary judge path is a keyless, evidence-backed
+            Codex security audit. Its separate local API engine supports the
+            hunt, patch, and re-analysis loop when configured.
           </h1>
 
           <div className="campaign-frame">
@@ -106,26 +107,31 @@ export default function Home() {
 
           <div className="scan-command">
             <div className="scan-command-title">
-              <p>START A DEFENSIVE AUDIT</p>
-              <strong>Your repository</strong>
-              <span>API-backed source analysis for code you own</span>
+              <p>PRIMARY PATH · NO API KEY</p>
+              <strong>Run keyless in Codex</strong>
+              <span>Ask <code>$deadbolt</code> to audit source you own.</span>
             </div>
 
             <div className="scan-command-metrics" aria-label="Audit capabilities">
               <span>
-                <strong>4</strong> HUNT PASSES
+                <strong>KEYLESS</strong> IN CODEX
               </span>
               <span>
-                <strong>FOCUSED</strong> PATCH PLANS
+                <strong>READ-ONLY</strong> AUDIT
               </span>
               <span>
-                <strong>FRESH</strong> RE-ANALYSIS
+                <strong>EVIDENCE</strong> BACKED
               </span>
             </div>
 
-            <a className="primary-action scan-now" href="/analyze#scan">
-              Audit your source
-              <span aria-hidden="true">↘</span>
+            <a
+              className="primary-action scan-now"
+              href="https://github.com/TexanAlph/deadbolt-build-week#test-it-yourself-keyless-deadbolt-audit"
+              target="_blank"
+              rel="noreferrer"
+            >
+              Run keyless in Codex
+              <span aria-hidden="true">↗</span>
             </a>
           </div>
 
@@ -136,8 +142,8 @@ export default function Home() {
                 Run <code>$deadbolt</code> keylessly in Codex.
               </h2>
               <span>
-                Install the plugin once, then audit the included InvoicePilot
-                source without a separate API key.
+                Install the Deadbolt Skill once, then audit the included
+                InvoicePilot source without a separate API key.
               </span>
               <small>
                 Read-only source reasoning audit · does not run the web engine
@@ -189,8 +195,8 @@ export default function Home() {
               write the fix, and show whether the same hunt still finds it.
             </p>
             <div className="story-actions">
-              <a className="text-action" href="/analyze#scan">
-                Start a defensive audit <span aria-hidden="true">→</span>
+              <a className="text-action" href="#keyless">
+                Run keyless in Codex <span aria-hidden="true">→</span>
               </a>
               <a className="text-action muted" href="#how">
                 See how the loop works <span aria-hidden="true">↓</span>
@@ -222,10 +228,12 @@ export default function Home() {
 
         <section className="scan-guide" id="try">
           <div className="scan-guide-heading">
-            <p className="eyebrow">API-BACKED ENGINE LOOP</p>
+            <p className="eyebrow">
+              ILLUSTRATIVE REMEDIATION FLOW · LOCAL API ENGINE
+            </p>
             <h2>
-              Bring the code.
-              <span>Deadbolt brings the security loop.</span>
+              How the local engine is designed to work.
+              <span>Illustrative until a real run is recorded.</span>
             </h2>
           </div>
 
@@ -244,33 +252,38 @@ export default function Home() {
 
             <div className="evidence-preview">
               <div className="evidence-topline">
-                <span>REPRESENTATIVE FINDING</span>
-                <strong>CRITICAL</strong>
+                <span>ILLUSTRATIVE REMEDIATION FLOW</span>
+                <strong>NOT A RECORDED RUN</strong>
               </div>
-              <p className="evidence-code">AUTH-008 · ACCESS CONTROL</p>
+              <p className="evidence-code">
+                ILLUSTRATIVE ACCESS CONTROL EXAMPLE
+              </p>
               <h3>
-                One signed-in user can read another user&apos;s private record.
+                Example: one signed-in user can read another user&apos;s private
+                record.
               </h3>
               <p>
-                The route checks that a user exists, but never proves the
-                requested record belongs to that user. Deadbolt follows the
-                trust boundary across the route and data access—not just one
-                line.
+                This example shows the evidence and before→after framing the
+                local API-backed engine is designed to produce. It is not a
+                claim that a live patch or verification run has been recorded.
               </p>
-              <div className="evidence-transition" aria-label="Fix result">
+              <div
+                className="evidence-transition"
+                aria-label="Illustrative remediation outcome"
+              >
                 <span>
                   <i aria-hidden="true" />
-                  BEFORE · CROSS-TENANT READ
+                  BEFORE · EXAMPLE CROSS-TENANT READ
                 </span>
                 <b aria-hidden="true">→</b>
                 <span className="fixed">
                   <i aria-hidden="true" />
-                  AFTER · 404 DENIED
+                  AFTER · EXAMPLE 404 DENIED
                 </span>
               </div>
-              <a className="primary-action" href="/analyze#scan">
-                Audit your source
-                <span aria-hidden="true">↘</span>
+              <a className="primary-action" href="#keyless">
+                Run the keyless audit
+                <span aria-hidden="true">↓</span>
               </a>
             </div>
           </div>

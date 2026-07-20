@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import type { ChangeEvent } from "react";
 import { ReportExperience } from "@/components/report-experience";
 import type {
@@ -10,6 +10,15 @@ import type {
 import { browserUploadPath } from "@/lib/analysis/browser-upload";
 
 type RunState = "idle" | "reading" | "running" | "error";
+type EngineAvailability = "checking" | "available" | "unavailable";
+
+type AnalysisAvailability = {
+  liveModelConfigured?: boolean;
+  mode?: "openai" | "internal_fixture" | "unavailable";
+};
+
+const keylessGuideHref =
+  "https://github.com/TexanAlph/deadbolt-build-week#test-it-yourself-keyless-deadbolt-audit";
 
 const allowedExtensions = [
   ".cjs",
@@ -63,6 +72,38 @@ export function AnalysisConsole() {
   const [state, setState] = useState<RunState>("idle");
   const [report, setReport] = useState<AnalysisReport | null>(null);
   const [error, setError] = useState("");
+  const [engineAvailability, setEngineAvailability] =
+    useState<EngineAvailability>("checking");
+
+  useEffect(() => {
+    let active = true;
+
+    void (async () => {
+      try {
+        const response = await fetch("/api/analyze", { cache: "no-store" });
+        const availability = (await response.json()) as AnalysisAvailability;
+        const liveEngineReady =
+          response.ok &&
+          availability.liveModelConfigured === true &&
+          availability.mode === "openai";
+
+        if (active) {
+          setEngineAvailability(liveEngineReady ? "available" : "unavailable");
+        }
+      } catch {
+        if (active) {
+          setEngineAvailability("unavailable");
+        }
+      }
+    })();
+
+    return () => {
+      active = false;
+    };
+  }, []);
+
+  const webEngineAvailable = engineAvailability === "available";
+  const webEngineUnavailable = engineAvailability === "unavailable";
 
   const selectedCharacters = useMemo(
     () => files.reduce((total, file) => total + file.content.length, 0),
@@ -70,6 +111,15 @@ export function AnalysisConsole() {
   );
 
   async function handleFiles(event: ChangeEvent<HTMLInputElement>) {
+    if (!webEngineAvailable) {
+      setError(
+        engineAvailability === "checking"
+          ? "Checking API availability. Try again in a moment."
+          : "This public deployment has no configured API provider. Run the keyless Codex Skill instead.",
+      );
+      return;
+    }
+
     setState("reading");
     setReport(null);
     setError("");
@@ -112,6 +162,15 @@ export function AnalysisConsole() {
   }
 
   async function runAnalysis() {
+    if (!webEngineAvailable) {
+      setError(
+        engineAvailability === "checking"
+          ? "Checking API availability. Try again in a moment."
+          : "This public deployment has no configured API provider. Run the keyless Codex Skill instead.",
+      );
+      return;
+    }
+
     if (!ownershipConfirmed) {
       setError("Confirm that you own or are authorized to audit this code.");
       return;
@@ -192,6 +251,7 @@ export function AnalysisConsole() {
               value={repositoryName}
               onChange={(event) => setRepositoryName(event.target.value)}
               maxLength={80}
+              disabled={!webEngineAvailable}
             />
           </label>
           <label className="file-drop">
@@ -206,6 +266,7 @@ export function AnalysisConsole() {
               {...directoryPickerAttributes}
               onChange={handleFiles}
               accept={allowedExtensions.join(",")}
+              disabled={!webEngineAvailable}
             />
           </label>
           <div className="file-stats" aria-live="polite">
@@ -220,6 +281,7 @@ export function AnalysisConsole() {
             type="checkbox"
             checked={ownershipConfirmed}
             onChange={(event) => setOwnershipConfirmed(event.target.checked)}
+            disabled={!webEngineAvailable}
           />
           <span>
             I own this code or I am explicitly authorized to audit it.
@@ -230,13 +292,27 @@ export function AnalysisConsole() {
           className="run-analysis"
           type="button"
           onClick={runAnalysis}
-          disabled={state === "running" || state === "reading"}
+          disabled={
+            !webEngineAvailable ||
+            state === "running" ||
+            state === "reading"
+          }
         >
-          <span>{statusText(state)}</span>
+          <span>
+            {webEngineUnavailable
+              ? "API UNAVAILABLE"
+              : engineAvailability === "checking"
+                ? "CHECKING API"
+                : statusText(state)}
+          </span>
           <strong>
             {state === "running"
               ? "API engine hunting, patching, re-analyzing…"
-              : "Run API-backed security loop"}
+              : webEngineUnavailable
+                ? "Run keyless in Codex instead"
+                : engineAvailability === "checking"
+                  ? "Checking API availability…"
+                  : "Run API-backed security loop"}
           </strong>
           <span aria-hidden="true">↘</span>
         </button>
@@ -247,12 +323,30 @@ export function AnalysisConsole() {
           </p>
         ) : null}
 
+        {webEngineUnavailable ? (
+          <aside className="api-unavailable" role="status">
+            <p>PUBLIC API LOOP UNAVAILABLE</p>
+            <strong>
+              Uploads are disabled because this deployment has no configured
+              API provider.
+            </strong>
+            <span>
+              Use the primary path instead: run the keyless
+              <code> $deadbolt </code>
+              Skill in Codex for an evidence-backed source audit.
+            </span>
+            <a href={keylessGuideHref} target="_blank" rel="noreferrer">
+              RUN KEYLESS IN CODEX ↗
+            </a>
+          </aside>
+        ) : null}
+
         <p className="fixture-note">
-          Uploaded repositories are processed only for this analysis request.
-          This web engine requires a configured GPT-5.6 Sol API provider
-          (`OPENAI_API_KEY`). For a keyless Codex reasoning audit, install
-          <code> $deadbolt </code>; it reports source evidence but does not run
-          the patch-and-re-analysis loop.
+          {engineAvailability === "checking"
+            ? "Checking whether the API-backed engine is available on this deployment."
+            : webEngineAvailable
+              ? "Uploaded repositories are processed only for this analysis request. This web engine requires a configured GPT-5.6 Sol API provider (OPENAI_API_KEY)."
+              : "The API-backed loop is intentionally unavailable here until a provider is configured. The keyless Skill is read-only and does not run the patch-and-re-analysis loop."}
         </p>
       </section>
 
@@ -262,9 +356,19 @@ export function AnalysisConsole() {
             <p className="eyebrow">
               API-BACKED HUNT → PATCH → RE-ANALYZE PIPELINE
             </p>
-            <h2>No analysis run yet</h2>
+            <h2>
+              {webEngineUnavailable
+                ? "Run the keyless Codex audit"
+                : "No analysis run yet"}
+            </h2>
           </div>
-          <span className="engine-pill fixture">AWAITING RUN</span>
+          <span className="engine-pill fixture">
+            {webEngineUnavailable
+              ? "API UNAVAILABLE"
+              : engineAvailability === "checking"
+                ? "CHECKING API"
+                : "AWAITING RUN"}
+          </span>
         </div>
 
         <div className="run-stages">
@@ -303,8 +407,9 @@ export function AnalysisConsole() {
         <div className="empty-run">
           <span>DB—READY</span>
           <p>
-            Add source files and confirm ownership to start the threat model,
-            four focused hunts, isolated patches, and affected-hunt re-analysis.
+            {webEngineUnavailable
+              ? "This public deployment cannot accept source uploads without a configured provider. Use $deadbolt in Codex for the keyless judge path."
+              : "Add source files and confirm ownership to start the threat model, four focused hunts, isolated patches, and affected-hunt re-analysis."}
           </p>
         </div>
       </section>
