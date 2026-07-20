@@ -1049,6 +1049,126 @@ footer {
   border-left: 1px solid rgba(5, 7, 5, 0.22);
 }
 
+.keyless-launch {
+  display: grid;
+  grid-template-columns: minmax(320px, 1.35fr) minmax(245px, 0.8fr) minmax(220px, 0.48fr);
+  align-items: stretch;
+  margin: 18px 34px 0;
+  border: 1px solid rgba(183, 243, 74, 0.54);
+  background:
+    linear-gradient(120deg, rgba(183, 243, 74, 0.13), transparent 52%),
+    rgba(8, 11, 8, 0.97);
+  box-shadow: 0 20px 64px rgba(0, 0, 0, 0.3);
+}
+
+.keyless-launch-copy {
+  padding: 24px;
+}
+
+.keyless-launch-copy > p {
+  margin: 0;
+  color: var(--acid);
+  font-family: var(--font-geist-mono), monospace;
+  font-size: 8px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+}
+
+.keyless-launch-copy h2 {
+  margin: 10px 0 8px;
+  color: var(--paper);
+  font-size: clamp(24px, 2.25vw, 35px);
+  font-weight: 560;
+  letter-spacing: -0.045em;
+  line-height: 0.96;
+}
+
+.keyless-launch-copy h2 code {
+  color: var(--acid);
+  font-family: var(--font-geist-mono), monospace;
+  font-size: 0.76em;
+  font-weight: 500;
+  letter-spacing: -0.07em;
+}
+
+.keyless-launch-copy > span {
+  display: block;
+  max-width: 520px;
+  color: #a2ae9e;
+  font-size: 12px;
+  line-height: 1.5;
+}
+
+.keyless-launch-copy small {
+  display: block;
+  margin-top: 10px;
+  color: #667261;
+  font-family: var(--font-geist-mono), monospace;
+  font-size: 7px;
+  letter-spacing: 0.06em;
+  line-height: 1.45;
+}
+
+.keyless-launch-steps {
+  display: grid;
+  align-content: center;
+  gap: 14px;
+  padding: 22px 24px;
+  border-left: 1px solid var(--line);
+}
+
+.keyless-launch-steps span {
+  display: flex;
+  align-items: baseline;
+  gap: 9px;
+  color: #b8c2b4;
+  font-family: var(--font-geist-mono), monospace;
+  font-size: 8px;
+  letter-spacing: 0.09em;
+  white-space: nowrap;
+}
+
+.keyless-launch-steps b {
+  color: var(--acid);
+  font-size: 7px;
+  font-weight: 500;
+}
+
+.keyless-launch-steps code {
+  color: var(--paper);
+  font-family: var(--font-geist-mono), monospace;
+  font-size: inherit;
+}
+
+.keyless-launch-action {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  min-height: 100%;
+  padding: 22px;
+  border-left: 1px solid rgba(183, 243, 74, 0.35);
+  color: var(--acid);
+  font-family: var(--font-geist-mono), monospace;
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  line-height: 1.35;
+  transition:
+    background 160ms ease,
+    color 160ms ease;
+}
+
+.keyless-launch-action:hover {
+  background: var(--acid);
+  color: var(--ink);
+}
+
+.keyless-launch-action > span:last-child {
+  font-size: 18px;
+  line-height: 1;
+}
+
 .home-story {
   display: grid;
   grid-template-columns: minmax(0, 1.45fr) minmax(300px, 0.55fr);
@@ -1567,6 +1687,17 @@ footer {
     border-left: 0;
   }
 
+  .keyless-launch {
+    grid-template-columns: minmax(290px, 1.2fr) minmax(215px, 0.8fr);
+  }
+
+  .keyless-launch-action {
+    grid-column: 1 / -1;
+    min-height: 62px;
+    border-top: 1px solid rgba(183, 243, 74, 0.35);
+    border-left: 0;
+  }
+
   .home-story {
     gap: 70px;
   }
@@ -1650,6 +1781,41 @@ footer {
 
   .scan-now {
     grid-column: auto;
+  }
+
+  .keyless-launch {
+    grid-template-columns: 1fr;
+    margin: 18px 0 0;
+  }
+
+  .keyless-launch-copy {
+    padding: 22px 20px;
+  }
+
+  .keyless-launch-copy h2 {
+    font-size: 28px;
+  }
+
+  .keyless-launch-steps {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+    padding: 18px 20px;
+    border-top: 1px solid var(--line);
+    border-left: 0;
+  }
+
+  .keyless-launch-steps span {
+    display: grid;
+    gap: 4px;
+    font-size: 7px;
+    white-space: normal;
+  }
+
+  .keyless-launch-action {
+    min-height: 66px;
+    padding-inline: 20px;
+    border-top: 1px solid rgba(183, 243, 74, 0.35);
+    border-left: 0;
   }
 
   .home-story {

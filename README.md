@@ -74,10 +74,11 @@ The web app is the full product surface, not the keyless demo path.
 npm install
 cp .env.example .env.local
 # Add OPENAI_API_KEY to .env.local
+npm run prepare:live-sample
 npm run dev
 ```
 
-Open [http://localhost:3000/analyze](http://localhost:3000/analyze), select a repository folder you own, confirm authorization, and choose **Run API-backed security loop**. Without `OPENAI_API_KEY`, uploaded-source analysis returns an honest unavailable response; it does not silently fall back to the fixture or to the Codex account running the browser.
+Open [http://localhost:3000/analyze](http://localhost:3000/analyze), select the generated `work/invoice-pilot-live-input` folder (or another repository you own), confirm authorization, and choose **Run API-backed security loop**. The preparation command intentionally omits InvoicePilot's answer-bearing README, manifest, and seed scripts, so the live model receives ordinary application source rather than its expected result. Without `OPENAI_API_KEY`, uploaded-source analysis returns an honest unavailable response; it does not silently fall back to the fixture or to the Codex account running the browser.
 
 The public site is [deadbolt-build-week.vercel.app](https://deadbolt-build-week.vercel.app). Its internal deterministic fixture is gated behind `DEADBOLT_INTERNAL_DEMO=1` and is not the public demo, the keyless Skill, or proof of a live API request.
 

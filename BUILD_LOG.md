@@ -14,6 +14,33 @@ This is the dated evidence trail for the OpenAI Build Week build. Log material m
   are not evidence that the keyless Skill runs the engine loop or that a live
   GPT-5.6 API request succeeded.
 
+### 18:34 CDT — Submission handoff and keyless judge path surfaced
+
+- Captured and pinned the Codex feedback/conversation session for this build:
+  `019f7211-fea5-7652-bde6-777f5694ee1b`.
+- Added a prominent homepage `RUN KEYLESS IN CODEX` judge CTA and navigation
+  link. It leads to the packaged plugin's InvoicePilot blind-audit walkthrough.
+- The CTA explicitly preserves the proof boundary: keyless Codex reasoning is
+  read-only and does not claim to run the API-backed engine or verify a patch.
+- Validation passed: `npm run lint`, `npm run typecheck`, `git diff --check`,
+  and `npm run build`.
+
+### 18:38 CDT — Local live-engine demo setup prepared (no API call)
+
+- Added `npm run prepare:live-sample`, which creates the gitignored
+  `work/invoice-pilot-live-input` folder for a fair local API-backed demo.
+- The staging command copies only ordinary application/configuration source. It
+  deliberately excludes the sample README, vulnerability manifest, seed
+  scripts, lockfile, and public assets so they cannot disclose expected results
+  to a live model.
+- Excluded the gitignored `work/` scratch directory from the root TypeScript
+  project so generated sample code cannot affect Deadbolt's own validation.
+- Ran the staging command: it produced 22 source/configuration files (42,531
+  characters) and the prohibited-material check passed.
+- `npm run lint`, `npm run typecheck`, `git diff --check`, and `npm run build`
+  passed after the repair. No `OPENAI_API_KEY` was read or used; no live model
+  request was made.
+
 ## Technique register
 
 | Technique | Status | Evidence |

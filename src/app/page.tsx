@@ -64,6 +64,7 @@ export default function Home() {
 
         <nav className="home-nav" aria-label="Main navigation">
           <a href="#how">HOW IT WORKS</a>
+          <a href="#keyless">RUN KEYLESS</a>
           <a href="/analyze#scan">AUDIT YOUR SOURCE</a>
           <a
             href="https://github.com/TexanAlph/deadbolt-build-week"
@@ -127,6 +128,48 @@ export default function Home() {
               <span aria-hidden="true">↘</span>
             </a>
           </div>
+
+          <section className="keyless-launch" id="keyless" aria-labelledby="keyless-heading">
+            <div className="keyless-launch-copy">
+              <p>PRIMARY JUDGE PATH · CODEX SKILL</p>
+              <h2 id="keyless-heading">
+                Run <code>$deadbolt</code> keylessly in Codex.
+              </h2>
+              <span>
+                Install the plugin once, then audit the included InvoicePilot
+                source without a separate API key.
+              </span>
+              <small>
+                Read-only source reasoning audit · does not run the web engine
+                or claim patch verification.
+              </small>
+            </div>
+
+            <div className="keyless-launch-steps" aria-label="Keyless audit steps">
+              <span>
+                <b>01</b>
+                INSTALL
+              </span>
+              <span>
+                <b>02</b>
+                ASK <code>$deadbolt</code>
+              </span>
+              <span>
+                <b>03</b>
+                AUDIT SAMPLE
+              </span>
+            </div>
+
+            <a
+              className="keyless-launch-action"
+              href="https://github.com/TexanAlph/deadbolt-build-week#judge-quick-start-keyless-deadbolt-audit"
+              target="_blank"
+              rel="noreferrer"
+            >
+              <span>RUN KEYLESS IN CODEX</span>
+              <span aria-hidden="true">↗</span>
+            </a>
+          </section>
         </section>
 
         <section className="home-story">
