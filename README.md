@@ -7,51 +7,120 @@ Deadbolt has two deliberately separate surfaces for auditing repositories you ow
 
 The distinction is intentional. The Skill is not a disguised fixture and does not claim that it runs the TypeScript engine’s patch-and-re-analysis loop.
 
-## Judge quick start: keyless `$deadbolt` audit
+## Test it yourself: keyless `$deadbolt` audit
 
-This is the fastest way to evaluate the project without rebuilding the web app or supplying an API key.
+This is the primary judge path. It is a read-only Codex Skill that reasons over
+local source code; it is **not** the API-backed TypeScript engine and it does
+not patch code or run tests.
 
-### Prerequisites
+### Before you begin
 
-- A signed-in Codex desktop app or Codex CLI with model access.
-- Git. No Node installation, `npm install`, or `OPENAI_API_KEY` is needed for this path.
+You need only:
 
-### Install the packaged plugin
+- a signed-in Codex desktop app or Codex CLI with model access; and
+- Git.
+
+You do **not** need Node.js, `npm install`, an `.env` file, or an
+`OPENAI_API_KEY`. You also do **not** need to run `codex --enable skills`.
+In the current Codex CLI, plugins are a stable feature and an installed
+plugin's bundled Skills become available in a **new** Codex task or CLI session.
+
+If you are using the CLI, confirm that Codex is installed and signed in:
+
+```bash
+codex --version
+codex login
+```
+
+If `codex login` says you are already signed in, continue.
+
+### 1. Download Deadbolt and install the packaged Skill
+
+Copy and run these commands in a terminal, one block at a time:
 
 ```bash
 git clone https://github.com/TexanAlph/deadbolt-build-week.git
 cd deadbolt-build-week
+```
 
+```bash
 codex plugin marketplace add "$PWD/codex-plugin"
 codex plugin add deadbolt@deadbolt-build-week
+codex plugin list --available --json
 ```
 
-Start a **new Codex task** in this repository after installing. The packaged marketplace and plugin are self-contained under `codex-plugin/`; the install sequence above was tested in an isolated local Codex home.
+The last command should show `deadbolt@deadbolt-build-week` as `installed` and
+`enabled`. This is the tested cold-install route for this repository: the
+marketplace is at `codex-plugin/.agents/plugins/marketplace.json`, its plugin
+is at `codex-plugin/plugins/deadbolt/`, and it bundles the `$deadbolt` Skill.
+The repo's `.agents/skills/deadbolt/` folder is an identical project-local
+mirror, not a second product to install. Do not use a fixture, an API key, or
+the web app for this walkthrough.
 
-### Run the InvoicePilot blind audit
+### 2. Start a fresh Codex task and run the audit
 
-Ask Codex:
+The installation takes effect only in a new task or CLI session.
 
-```text
-$deadbolt Audit only the code I own in samples/invoice-pilot. Work read-only:
-build a threat model, inspect authorization end-to-end, and report only
-evidence-backed findings with file/line evidence. Do not make network requests
-or edit files. Before reporting, do not inspect README files,
-VULNERABILITY_MANIFEST.json, BUILD_LOG.md, or seed/verification scripts.
+**Codex CLI:** while still inside the cloned `deadbolt-build-week` directory,
+run this one command exactly:
+
+```bash
+codex -C "$PWD" '$deadbolt Audit only the code I own in samples/invoice-pilot. Work read-only: build a threat model, inspect authorization end-to-end, and report only evidence-backed findings with file/line evidence. Do not make network requests or edit files. Before reporting, do not inspect README files, VULNERABILITY_MANIFEST.json, BUILD_LOG.md, or seed/verification scripts.'
 ```
 
-The executable Skill has the same blind-audit rule: it must not read the sample
-manifest, seed verifiers, fixture documentation, or this README before it
-returns a report. The following is therefore a **human judge checklist to use
-after the audit**, not prompt context for the model:
+**Codex desktop app:** open the cloned `deadbolt-build-week` folder, start a
+new task, and paste the same text beginning with `$deadbolt` into the message
+box. The target is the local sample folder `samples/invoice-pilot` inside this
+clone—not the deployed website and not a third-party repository.
 
-- The report should trace a missing invoice-ownership invariant through these
-  source locations:
-  - [`samples/invoice-pilot/src/app/api/invoices/[id]/route.ts`](./samples/invoice-pilot/src/app/api/invoices/[id]/route.ts), where an untrusted invoice ID reaches a direct lookup without a session or ownership check;
-  - [`samples/invoice-pilot/src/lib/data.ts`](./samples/invoice-pilot/src/lib/data.ts), where invoices have `ownerId` but `getInvoiceById` matches only the ID; and
-  - [`samples/invoice-pilot/src/app/invoice/[id]/page.tsx`](./samples/invoice-pilot/src/app/invoice/[id]/page.tsx), which repeats the direct lookup on the page route.
+### 3. What a successful audit looks like
 
-The expected conclusion is an IDOR/BOLA risk: a user who can control an invoice identifier can reach another tenant’s record because the request path never proves ownership. Judge the result by that evidence path, not by a canned count, fixture replay, or a pre-disclosed Skill oracle. If Codex cannot establish the path, it should state the proof gap rather than invent a finding.
+Let the audit finish before comparing it with this checklist. The prompt and
+the Skill deliberately keep the answer-bearing README, manifest, and seed
+verifiers out of the model's audit context.
+
+The report should identify an evidence-backed **IDOR/BOLA authorization risk**:
+a person who controls an invoice ID can reach another tenant's invoice because
+the request path does not establish a session or enforce invoice ownership. It
+should support that conclusion with tight file/line evidence, including the
+API route at
+[`samples/invoice-pilot/src/app/api/invoices/[id]/route.ts`](./samples/invoice-pilot/src/app/api/invoices/[id]/route.ts),
+the `ownerId`-bearing lookup in
+[`samples/invoice-pilot/src/lib/data.ts`](./samples/invoice-pilot/src/lib/data.ts),
+and the repeated lookup in
+[`samples/invoice-pilot/src/app/invoice/[id]/page.tsx`](./samples/invoice-pilot/src/app/invoice/[id]/page.tsx).
+
+Judge it by the explanation and cited source path—not by a canned finding
+count. The audit is allowed to report a proof gap when it cannot establish the
+path; it must not invent a result, claim a patch was applied, or claim a test
+ran.
+
+### Keyless means no API key
+
+This path does **not** call `src/lib/analysis` or that engine's configured
+OpenAI API provider, and it does not run the TypeScript engine's hunt → patch
+→ re-analysis loop. It uses the model access already provided by the judge's
+signed-in Codex client. No `OPENAI_API_KEY` is needed or requested; being
+signed in to Codex with model access is still required.
+
+### If you get stuck
+
+1. **`$deadbolt` is not recognized.** Run
+   `codex plugin list --available --json` from the clone and confirm that the
+   plugin is both installed and enabled. Then close the current task/session
+   and start a new one; bundled Skills are discovered only in new sessions. If
+   the `codex plugin` command itself is missing, update the Codex desktop app
+   or CLI first—there is no separate `--enable skills` switch to add.
+
+2. **Codex says it cannot find `samples/invoice-pilot`.** The task was started
+   in the wrong folder. In a terminal, run `cd deadbolt-build-week` and
+   `ls samples/invoice-pilot`, then start the fresh task from that directory.
+   Keep the sample path in the prompt exactly as written.
+
+3. **You are asked for an API key or see a patch/test claim.** Stop and start a
+   new task with the exact `$deadbolt` prompt above. The keyless Skill is
+   audit-only and needs no `.env` or `OPENAI_API_KEY`; the API-backed web app is
+   a separate, intentionally key-required surface.
 
 ## Two surfaces, two honest promises
 

@@ -636,6 +636,28 @@ Official references:
   live structured-output compliance, and live patched-code re-analysis remain
   pending an API key.
 
+### 19:43 CDT — Cold judge-install guide verified
+
+- Verified the actual distribution layout before documenting it: the
+  `codex-plugin/.agents/plugins/marketplace.json` marketplace points to
+  `codex-plugin/plugins/deadbolt`, whose manifest bundles the `skills/deadbolt`
+  Skill. `.agents/skills/deadbolt` is a byte-identical project-local mirror;
+  the repository has no separate `.codex/skills` setup.
+- Confirmed with the installed Codex CLI that `plugins` is stable and there is
+  no separate `skills` feature flag to enable. Bundled Skills are available in
+  a new task/session after the plugin is installed.
+- Performed a fresh isolated install using
+  `codex plugin marketplace add "$PWD/codex-plugin"` followed by
+  `codex plugin add deadbolt@deadbolt-build-week`. The plugin installed as
+  version `0.1.0+codex.20260719230819`, enabled successfully, and required no
+  `OPENAI_API_KEY`.
+- Replaced the README judge quick start with a non-technical, copy/paste cold
+  walkthrough, an honest expected-IDOR evidence checklist, an explicit
+  keyless boundary, and three concrete recovery paths. This validates packaging
+  and discovery only; it does not constitute a live API-backed engine run.
+- Updated the public `RUN KEYLESS IN CODEX` CTA to target the new README
+  heading rather than the retired judge-quick-start anchor.
+
 ### 20:39 CDT — Finding IDs and browser intake are repository-safe
 
 - Added a deterministic pre-distillation ID boundary for the four independent

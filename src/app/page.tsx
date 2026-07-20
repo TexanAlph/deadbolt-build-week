@@ -162,7 +162,7 @@ export default function Home() {
 
             <a
               className="keyless-launch-action"
-              href="https://github.com/TexanAlph/deadbolt-build-week#judge-quick-start-keyless-deadbolt-audit"
+              href="https://github.com/TexanAlph/deadbolt-build-week#test-it-yourself-keyless-deadbolt-audit"
               target="_blank"
               rel="noreferrer"
             >
