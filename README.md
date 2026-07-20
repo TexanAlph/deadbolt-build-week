@@ -13,14 +13,11 @@ This is the primary judge path. It is a read-only Codex Skill that reasons over
 local source code; it is **not** the API-backed TypeScript engine and it does
 not patch code or run tests.
 
-### Fastest path: two conversational prompts
+### In three steps
 
-1. **Install:** Tell Codex: “Use the built-in Skill Installer to install the Deadbolt Skill from https://github.com/TexanAlph/deadbolt-build-week/tree/main/.agents/skills/deadbolt.”
-2. **Run:** In a new Codex task opened at a clone of this repository, tell Codex: “Use the installed Deadbolt security-audit Skill to audit the local `samples/invoice-pilot` repository I own for security vulnerabilities. Work read-only and cite file-and-line evidence.”
-
-The installer downloads the Skill, not InvoicePilot itself, so the second line
-still needs this repository open locally. Codex may ask for permission to
-download the public GitHub source. No `OPENAI_API_KEY` is needed.
+1. **Install** the packaged `$deadbolt` plugin from this repo's bundled marketplace (commands in step 1 below).
+2. **Open a brand-new Codex session** — an installed Skill is discovered only in a new task/session, never the one you installed from.
+3. **Run the single `$deadbolt` prompt** (step 2) against `samples/invoice-pilot`; you'll get an evidence-backed **IDOR/BOLA** finding that cites exact file and line — no `OPENAI_API_KEY` required.
 
 ### Before you begin
 
@@ -58,29 +55,42 @@ codex plugin add deadbolt@deadbolt-build-week
 codex plugin list --available --json
 ```
 
-The last command should show `deadbolt@deadbolt-build-week` as `installed` and
-`enabled`. This is the tested cold-install route for this repository: the
-marketplace is at `codex-plugin/.agents/plugins/marketplace.json`, its plugin
-is at `codex-plugin/plugins/deadbolt/`, and it bundles the `$deadbolt` Skill.
-The repo's `.agents/skills/deadbolt/` folder is an identical project-local
-mirror, not a second product to install. Do not use a fixture, an API key, or
-the web app for this walkthrough.
+The last command should list the plugin as installed and enabled — an entry
+similar to:
+
+```json
+{ "name": "deadbolt", "marketplace": "deadbolt-build-week", "status": "installed", "enabled": true }
+```
+
+This is the tested cold-install route for this repository: the marketplace is at
+`codex-plugin/.agents/plugins/marketplace.json`, its plugin is at
+`codex-plugin/plugins/deadbolt/`, and it bundles the `$deadbolt` Skill. Do not
+use a fixture, an API key, or the web app for this walkthrough.
 
 ### 2. Start a fresh Codex task and run the audit
 
 The installation takes effect only in a new task or CLI session.
 
-**Codex CLI:** while still inside the cloned `deadbolt-build-week` directory,
-run this one command exactly:
+Use this **one** prompt — in the CLI or the desktop app, verbatim. Both surfaces
+use the exact same text:
 
 ```bash
 codex -C "$PWD" '$deadbolt Audit only the code I own in samples/invoice-pilot. Work read-only: build a threat model, inspect authorization end-to-end, and report only evidence-backed findings with file/line evidence. Do not make network requests or edit files. Before reporting, do not inspect README files, VULNERABILITY_MANIFEST.json, BUILD_LOG.md, or seed/verification scripts.'
 ```
 
-**Codex desktop app:** open the cloned `deadbolt-build-week` folder, start a
-new task, and paste the same text beginning with `$deadbolt` into the message
-box. The target is the local sample folder `samples/invoice-pilot` inside this
-clone—not the deployed website and not a third-party repository.
+**Codex CLI:** run the command above while still inside the cloned
+`deadbolt-build-week` directory.
+
+**Codex desktop app:** open the cloned `deadbolt-build-week` folder, start a new
+task, and paste the prompt text (everything from `$deadbolt` onward) into the
+message box.
+
+Use the prompt **verbatim**. The closing clause — "Before reporting, do not
+inspect README files, VULNERABILITY_MANIFEST.json, BUILD_LOG.md, or
+seed/verification scripts" — is what keeps the audit blind to the answer key;
+dropping it lets the model read the ground truth and invalidates the test. The
+target is the local sample folder `samples/invoice-pilot` inside this clone — not
+the deployed website and not a third-party repository.
 
 ### 3. What a successful audit looks like
 
@@ -99,10 +109,14 @@ the `ownerId`-bearing lookup in
 and the repeated lookup in
 [`samples/invoice-pilot/src/app/invoice/[id]/page.tsx`](./samples/invoice-pilot/src/app/invoice/[id]/page.tsx).
 
-Judge it by the explanation and cited source path—not by a canned finding
-count. The audit is allowed to report a proof gap when it cannot establish the
-path; it must not invent a result, claim a patch was applied, or claim a test
-ran.
+The IDOR is the **anchor** finding — the one a correct audit should always land.
+A thorough pass may also surface other issues (for example secret handling,
+input-to-sink injection, or security-configuration weaknesses); those extra
+findings are a bonus, not a failure. Likewise, an honestly reported **proof gap**
+— "I could not establish this path" — is an acceptable result. What is *not*
+acceptable is inventing a result, claiming a patch was applied, or claiming a
+test ran. Judge it by the explanation and cited source path, not by a raw
+finding count.
 
 ### Keyless means no API key
 
@@ -130,6 +144,13 @@ signed in to Codex with model access is still required.
    new task with the exact `$deadbolt` prompt above. The keyless Skill is
    audit-only and needs no `.env` or `OPENAI_API_KEY`; the API-backed web app is
    a separate, intentionally key-required surface.
+
+> **Footnote — project-local mirror.** The repo's `.agents/skills/deadbolt/`
+> folder is an identical, project-local copy of the same Skill, so a Codex
+> session opened directly on this clone can also discover `$deadbolt` without the
+> marketplace step. It is the same product, not a second one — the marketplace
+> route above is the canonical, tested install path, and the one judges should
+> use.
 
 ## Two surfaces, two honest promises
 
