@@ -860,7 +860,6 @@ footer {
 }
 
 .home-header,
-.campaign-hero,
 .home-story,
 .builder-strip,
 .scan-guide,
@@ -910,6 +909,8 @@ footer {
 
 .campaign-hero {
   position: relative;
+  width: 100%;
+  margin-inline: 0;
   padding-top: 28px;
 }
 
@@ -1735,7 +1736,6 @@ footer {
 
 @media (max-width: 760px) {
   .home-header,
-  .campaign-hero,
   .home-story,
   .builder-strip,
   .scan-guide,
@@ -1754,7 +1754,7 @@ footer {
   }
 
   .campaign-frame {
-    margin-inline: -14px;
+    margin-inline: 0;
   }
 
   .campaign-art {
