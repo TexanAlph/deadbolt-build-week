@@ -2,6 +2,17 @@
 
 This is the dated evidence trail for the OpenAI Build Week build. Log material model work, Codex techniques, decisions, repairs, validation, and deployment proof here.
 
+## Submission readiness — 2026-07-21
+
+- Ran the complete project suite: lint, TypeScript, core remediation safeguards,
+  report-label honesty checks, bounded live-verification contract, and the
+  production Next.js build all pass.
+- Performed a clean-room plugin installation using a temporary Codex home:
+  the local marketplace registered, `deadbolt@deadbolt-build-week` installed,
+  and Codex reported the plugin enabled.
+- Expanded `SUBMISSION.md` into a Devpost-ready project description, judge
+  walkthrough, accurate product-boundary statement, and time-boxed video plan.
+
 ## Current proof boundary — 2026-07-19
 
 - **Proven keyless surface:** the packaged `$deadbolt` Codex Skill can perform
